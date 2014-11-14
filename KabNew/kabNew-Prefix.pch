@@ -1,0 +1,19 @@
+//
+//  kabNew-Prefix.pch
+//  KabNew
+//
+//  Created by Rockstar. on 10/31/14.
+//  Copyright (c) 2014 Gabe Morales. All rights reserved.
+//
+
+#import <Availability.h>
+
+#ifdef __OBJC__
+    #import "UIColor+kabIOSAdditions.h"
+    #import "GMDPTR.h"
+    #import "UIButton+kabiOSAdditions.h"
+    #import "UIColor+kabIOSAdditions.h"
+    #import "UIFont+kabiOSAdditions.h"
+    #import "GMD.h"
+
+#endif
