@@ -10,4 +10,13 @@
 
 @implementation KabChannelSchema
 @synthesize description;
+
+- (instancetype)initWithDetailView:(NSString *)plistName {
+    if ((self = [super init])) {
+        NSString *plistPath = [[NSBundle mainBundle] pathForResource:plistName ofType:@"plist"];
+        self.tableTitleArray = [NSMutableArray arrayWithContentsOfFile:plistPath];
+        self.titleCount = [self.tableTitleArray count];
+    }
+    return self;
+}
 @end

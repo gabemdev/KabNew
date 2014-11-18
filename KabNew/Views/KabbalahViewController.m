@@ -16,6 +16,8 @@
 @property (nonatomic, retain) NSArray *channels;
 @property (nonatomic, retain) NSMutableDictionary *channelImages;
 
+
+
 - (void)getAllChannels;
 
 @end

@@ -19,4 +19,10 @@
 @property (nonatomic, strong) NSString * detailText;
 @property (nonatomic, strong) NSString * ipadView;
 
+@property (nonatomic, assign) NSInteger titleCount;
+@property (nonatomic, strong) NSMutableArray *tableTitleArray;
+
+
+- (instancetype) initWithDetailView:(NSString *)plistName NS_DESIGNATED_INITIALIZER;
+
 @end

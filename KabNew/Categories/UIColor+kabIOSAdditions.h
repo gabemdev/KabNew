@@ -22,4 +22,6 @@
 + (UIColor *)kabLightGrayColor;
 + (UIColor *)kabGreenColor;
 
++ (UIColor *)kabDarkerTextColor;
+
 @end

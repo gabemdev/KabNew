@@ -153,6 +153,7 @@
 
 #pragma mark - UIViewController
 - (void)viewDidLoad {
+    [super viewDidLoad];
     UIView *background = [[UIView alloc] initWithFrame:CGRectZero];
     background.backgroundColor = [UIColor kabStaticColor];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
@@ -466,6 +467,9 @@
     return cell;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return @"Education Center";
+}
 
 #pragma mark - UITextFieldDelegate
 

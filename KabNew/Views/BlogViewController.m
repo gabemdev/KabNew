@@ -139,9 +139,9 @@
     Element *elements = [document selectElement:@"img"];
     NSString *imageString = [elements attribute:@"src"];
     
-    NSString *snipet = [elements contentsText];
-    snipet = ([snipet length] > 5) ? [snipet substringToIndex:5] : imageString;
-    snipet = [[elements description] stringByAppendingFormat:@"%@", imageString];
+//    NSString *snipet = [elements contentsText];
+//    snipet = ([snipet length] > 5) ? [snipet substringToIndex:5] : imageString;
+//    snipet = [[elements description] stringByAppendingFormat:@"%@", imageString];
     
     if (!cell) {
         cell = [[BlogCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];

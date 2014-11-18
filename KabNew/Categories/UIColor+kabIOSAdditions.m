@@ -52,4 +52,8 @@
     return [self colorWithRed:0.20 green:0.80 blue:0.00 alpha:1.00];
 }
 
++ (UIColor *)kabDarkerTextColor {
+    return [UIColor colorWithRed:0.949f green:0.510f blue:0.380f alpha:1.0f];
+}
+
 @end

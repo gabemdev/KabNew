@@ -22,6 +22,7 @@
 - (instancetype)init {
     if ((self = [super init])) {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+        [self.view addSubview:self.avatarImageView];
     }
     return self;
 }
@@ -30,7 +31,7 @@
     if (!_avatarImageView) {
         _avatarImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 12.0f, 12.0f)];
         _avatarImageView.layer.cornerRadius = self.avatarImageView.frame.size.width/2;
-        _avatarImageView.layer.borderColor = [[self class] darkTextColor].CGColor;
+        _avatarImageView.layer.borderColor = [UIColor kabDarkerTextColor].CGColor;
         _avatarImageView.layer.borderWidth = 1.0f;
         _avatarImageView.layer.masksToBounds = YES;
         _avatarImageView.backgroundColor = [UIColor clearColor];
@@ -97,7 +98,7 @@
     
     _table = [[UITableView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, self.view.bounds.size.width, self.view.bounds.size.height) style:UITableViewStyleGrouped];
     _table.translatesAutoresizingMaskIntoConstraints = NO;
-    _table.backgroundColor = [UIColor lightTextColor];
+    _table.backgroundColor = [UIColor kabStaticColor];
     _table.delegate = self;
     _table.dataSource = self;
     [_table registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
@@ -151,6 +152,7 @@
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:cellIdentifier];
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.backgroundColor = [UIColor kabStaticColor];
     }
     
     if (indexPath.section == 0) {
@@ -214,6 +216,39 @@
     }
 }
 
+//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+//    UILabel *title = [[UILabel alloc] initWithFrame:CGRectZero];
+//    title.backgroundColor = [UIColor clearColor];
+//    title.textAlignment = NSTextAlignmentLeft;
+//    title.font = [UIFont boldKabInterfaceFontOfSize:15.0f];
+//    title.textColor = [UIColor kabDarkTextColor];
+//    
+//    switch (section) {
+//        case 0:
+//            title.text = @"Kabbalah";
+//            break;
+//        case 1:
+//            title.text = @"Books";
+//            break;
+//        case 2:
+//            title.text = @"About";
+//            break;
+//        case 3:
+//            title.text = @"Self-learning";
+//            break;
+//            
+//        default:
+//            nil;
+//            break;
+//    }
+//    
+//    return title;
+//}
+
+//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+//    return 44;
+//}
+
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if (section == 0) {
         return @"Kabbalah";
@@ -227,10 +262,8 @@
     return nil;
 }
 
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == 0 && indexPath.row == 0) {
-        return 44;
-    }
     return 44;
 }
 

@@ -42,21 +42,6 @@
 
 }
 
-
-//- (UIButton *)englishButton {
-//    if (!_englishButton) {
-//        _englishButton = [UIButton languageButton];
-////        _englishButton.translatesAutoresizingMaskIntoConstraints = NO;
-//        _englishButton.frame = CGRectMake(roundf((self.view.frame.size.width - 300.0f) / 2.0f), 52.0f, 300.0f, 42.0f);
-//        [_englishButton setTitle:@"  ENGLISH"forState:UIControlStateNormal];
-//        [_englishButton setImage:[UIImage imageNamed:@"icn_trending_tv_default"] forState:UIControlStateNormal];
-//        [_englishButton setImage:[UIImage imageNamed:@"icn_trending_tv_default_white"] forState:UIControlStateHighlighted];
-////        [_englishButton addTarget:self action:@selector(playEnglish:) forControlEvents:UIControlEventTouchUpInside];
-//        [self.view addSubview:_englishButton];
-//    }
-//    return _englishButton;
-//}
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.tabBarController.tabBar setHidden:NO];
@@ -162,6 +147,7 @@
         [self.navigationController pushViewController:viewController animated:YES];
     }
 }
+
 
 #pragma mark - Media
 
