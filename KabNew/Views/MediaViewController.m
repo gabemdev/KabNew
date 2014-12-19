@@ -22,7 +22,7 @@
 - (instancetype)init {
     if ((self = [super init])) {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-        [self.view addSubview:self.avatarImageView];
+//        [self.view addSubview:self.avatarImageView];
     }
     return self;
 }

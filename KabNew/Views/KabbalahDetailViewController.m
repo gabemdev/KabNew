@@ -21,6 +21,18 @@
 @synthesize textBackground = _textBackground;
 @synthesize detailText = _detailText;
 @synthesize viewButton = _viewButton;
+@synthesize scrollView = _scrollView;
+
+- (UIScrollView *)scrollView {
+    if (!_scrollView) {
+        _scrollView = [[UIScrollView alloc] init];
+        _scrollView.translatesAutoresizingMaskIntoConstraints = NO;
+        _scrollView.showsHorizontalScrollIndicator = NO;
+        _scrollView.showsVerticalScrollIndicator = NO;
+        _scrollView.alwaysBounceVertical = YES;
+    }
+    return _scrollView;
+}
 
 - (instancetype)init {
     if ((self = [super init])) {
@@ -33,8 +45,9 @@
     [super viewDidLoad];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(openActionSheet:)];
-    [self setScroll];
+        [self.view addSubview:self.scrollView];
     [self loadUIViews];
+    [self setupConstraints];
     
 }
 
@@ -43,19 +56,11 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)setScroll{
-    _scrollView = [[UIScrollView alloc] init];
-    _scrollView.frame = self.view.bounds;
-    _scrollView.contentSize = CGSizeMake(self.view.bounds.size.width, self.view.bounds.size.height);
-    _scrollView.showsHorizontalScrollIndicator = NO;
-    _scrollView.showsVerticalScrollIndicator = YES;
-    _scrollView.delegate = self;
-    _scrollView.scrollEnabled = YES;
-    [self.view addSubview:_scrollView];
-}
+
 
 - (void)loadUIViews {
     //Main View
+
     [_scrollView setBackgroundColor:[UIColor kabStaticColor]];
     
     //Main title Image
@@ -91,10 +96,12 @@
 - (UIButton *)viewButton {
     if (!_viewButton) {
         _viewButton = [UIButton viewButton];
-        _viewButton.frame = CGRectMake(10.0f, 454.0f, 300.0f, 42.0f);
+        _viewButton.translatesAutoresizingMaskIntoConstraints = NO;
+//        _viewButton.frame = CGRectMake(10.0f, 454.0f, 300.0f, 42.0f);
         [_viewButton setTitle:@" VIEW" forState:UIControlStateNormal];
         [_viewButton setImage:[UIImage imageNamed:@"icn_nav_bar_light_actions"] forState:UIControlStateNormal];
         [_viewButton setImage:[UIImage imageNamed:@"icn_nav_bar_dark_actions"] forState:UIControlStateHighlighted];
+        [_viewButton addTarget:self action:@selector(pressedView:) forControlEvents:UIControlEventTouchUpInside];
         [_scrollView addSubview:_viewButton];
     }
     return _viewButton;
@@ -102,12 +109,42 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    _viewButton.alpha = 1.0f;
-    [self.tabBarController.tabBar setHidden:YES];
+//    _viewButton.alpha = 1.0f;
+}
+
+- (void)pressedView:(id)sender {
+    
 }
 
 - (void)openActionSheet:(id)sender {
     
 }
+
+#pragma mark - Configuration
+
+- (CGFloat)verticalSpacing {
+    return 16.0;
+}
+
+- (void)setupConstraints {
+    CGFloat verticalSpacing = self.verticalSpacing;
+    
+    NSDictionary *views = @{
+                            @"scrollView" : self.scrollView,
+                            @"button" : self.viewButton
+                            };
+    
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[scrollView]|" options:kNilOptions metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[scrollView]|" options:kNilOptions metrics:nil views:views]];
+    
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0.0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:200]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeHeight multiplier:0.0 constant:42]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:verticalSpacing]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeRight multiplier:1.0 constant:verticalSpacing]];
+
+    
+}
+
 
 @end

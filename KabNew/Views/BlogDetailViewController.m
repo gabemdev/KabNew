@@ -52,6 +52,7 @@
     _webView.delegate = self;
     _webView.scalesPageToFit = NO;
     
+    
     NSString *title = [NSString stringWithFormat:@"<b>%@</b>", item[@"title"]];
     NSString *post = [NSString stringWithFormat:@"<p>%@</p>", item[@"summary"]];
     
@@ -116,7 +117,6 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self.tabBarController.tabBar setHidden:YES];
     
     if (![_url isFileURL]) {
         [self.navigationController setToolbarHidden:NO animated:animated];
@@ -126,7 +126,6 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [self.navigationController setToolbarHidden:YES animated:animated];
-    [self.tabBarController.tabBar setHidden:NO];
 }
 
 #pragma mark - URL Loading

@@ -282,9 +282,8 @@
     
     self.navigationController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
 //    [self.navigationController setViewControllers:@[detail]];
+    [detail setHidesBottomBarWhenPushed:YES];
     [self.navigationController pushViewController:detail animated:YES];
-    
-    [self.tabBarController.tabBar setHidden:YES];
     [_table deselectRowAtIndexPath:index animated:YES];
     
 

@@ -171,9 +171,8 @@
     
     BlogDetailViewController *webView = [[BlogDetailViewController alloc] init];
     webView.item = items[indexPath.row];
+    [webView setHidesBottomBarWhenPushed:YES];
     [self.navigationController pushViewController:webView animated:YES];
-    
-    [self.tabBarController.tabBar setHidden:YES];
     [self.table deselectRowAtIndexPath:indexPath animated:YES];
     
 }

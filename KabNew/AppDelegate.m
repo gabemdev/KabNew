@@ -113,8 +113,9 @@
     UIEdgeInsets insets = UIEdgeInsetsMake(7.0f, 0.0f, -7.0f, 0.0f);
     
     //Set Tab bar
-    self.tabBarController = [[UITabBarController alloc] init];
-    [self.tabBarController.tabBar setTintColor:[UIColor whiteColor]];
+    _tabBarController = [[UITabBarController alloc] init];
+    [_tabBarController.tabBar setTintColor:[UIColor whiteColor]];
+    
     
     //Tab Bar Items
     UIViewController *kabbalah = [[KabbalahViewController alloc] init];
