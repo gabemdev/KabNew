@@ -1,0 +1,18 @@
+
+/* Class = "IBUITabBarItem"; title = "Account"; ObjectID = "0ra-hM-SfW"; */
+"0ra-hM-SfW.title" = "Account";
+
+/* Class = "IBUITabBarItem"; title = "KabTV"; ObjectID = "27Q-Pt-yfS"; */
+"27Q-Pt-yfS.title" = "KabTV";
+
+/* Class = "IBUITabBarItem"; title = "Media"; ObjectID = "8oj-lS-Jsb"; */
+"8oj-lS-Jsb.title" = "Media";
+
+/* Class = "IBUITabBarItem"; title = "Kabbalah"; ObjectID = "gSl-5w-Oni"; */
+"gSl-5w-Oni.title" = "Kabbalah";
+
+/* Class = "IBUITabBarItem"; title = "Blog"; ObjectID = "qVf-DZ-MIi"; */
+"qVf-DZ-MIi.title" = "Blog";
+
+/* Class = "IBUILabel"; text = "Andrew Barba"; ObjectID = "ylA-EM-cW7"; */
+"ylA-EM-cW7.text" = "Andrew Barba";

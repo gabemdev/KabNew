@@ -42,7 +42,7 @@
     [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg_texture"]]];
     
     
-    NSURL *requestURL = [NSURL URLWithString:@"http://feeds2.feedburner.com/MichaelLaitman"];
+    NSURL *requestURL = [NSURL URLWithString:NSLocalizedString(@"Blog", nil)];
     NSURLRequest *request = [NSURLRequest requestWithURL:requestURL];
     AFXMLRequestOperation *operation = [AFXMLRequestOperation XMLParserRequestOperationWithRequest: request
                                                                                            success:^(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLParser *XMLParser) {
@@ -104,7 +104,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             if (items == nil) {
                 Parser *rssParser = [[Parser alloc] init];
-                [rssParser parseRssFeed:@"http://feeds2.feedburner.com/MichaelLaitman" withDelegate:self];
+                [rssParser parseRssFeed:NSLocalizedString(@"Blog", nil) withDelegate:self];
                 [self.table reloadData];
             } else {
                 [self.table reloadData];
@@ -179,7 +179,7 @@
 
 - (void)reloadTableData {
     Parser *rssParser = [[Parser alloc] init];
-    [rssParser parseRssFeed:@"http://feeds2.feedburner.com/MichaelLaitman" withDelegate:self];
+    [rssParser parseRssFeed:NSLocalizedString(@"Blog", nil) withDelegate:self];
     [_table reloadData];
 }
 

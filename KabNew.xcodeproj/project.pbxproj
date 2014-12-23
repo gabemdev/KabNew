@@ -72,6 +72,7 @@
 		6DC48DB81A0600C700BF99B9 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DC48DB71A0600C700BF99B9 /* CFNetwork.framework */; };
 		6DC48DBA1A0600D100BF99B9 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DC48DB91A0600D000BF99B9 /* MessageUI.framework */; };
 		6DC48DC01A0612CC00BF99B9 /* UIButton+kabiOSAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DC48DBF1A0612CC00BF99B9 /* UIButton+kabiOSAdditions.m */; };
+		6DCC9C751A4A2B5F00AA83A3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6DCC9C771A4A2B5F00AA83A3 /* Localizable.strings */; };
 		6DE700C01A088D4000BE5468 /* GMHudView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DE700BD1A088D4000BE5468 /* GMHudView.m */; };
 		6DE700C11A088D4000BE5468 /* GMWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DE700BF1A088D4000BE5468 /* GMWebView.m */; };
 		6DE700C71A08998C00BE5468 /* GMHUDWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DE700C41A08998C00BE5468 /* GMHUDWindow.m */; };
@@ -212,6 +213,10 @@
 		6DC48DB91A0600D000BF99B9 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		6DC48DBE1A0612CC00BF99B9 /* UIButton+kabiOSAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIButton+kabiOSAdditions.h"; path = "Categories/UIButton+kabiOSAdditions.h"; sourceTree = "<group>"; };
 		6DC48DBF1A0612CC00BF99B9 /* UIButton+kabiOSAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIButton+kabiOSAdditions.m"; path = "Categories/UIButton+kabiOSAdditions.m"; sourceTree = "<group>"; };
+		6DCC9C761A4A2B5F00AA83A3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		6DCC9C781A4A2C2E00AA83A3 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/Main.strings"; sourceTree = "<group>"; };
+		6DCC9C791A4A2C2E00AA83A3 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		6DCC9C7A1A4A2C2E00AA83A3 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		6DE700BC1A088D4000BE5468 /* GMHudView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GMHudView.h; path = Data/GMHudView.h; sourceTree = "<group>"; };
 		6DE700BD1A088D4000BE5468 /* GMHudView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GMHudView.m; path = Data/GMHudView.m; sourceTree = "<group>"; };
 		6DE700BE1A088D4000BE5468 /* GMWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GMWebView.h; path = Data/GMWebView.h; sourceTree = "<group>"; };
@@ -302,6 +307,7 @@
 				6D133C8C19FF4C8400BD0FAB /* Info.plist */,
 				6D133C8D19FF4C8400BD0FAB /* main.m */,
 				6D133CEC1A040ECA00BD0FAB /* kabNew-Prefix.pch */,
+				6DCC9C771A4A2B5F00AA83A3 /* Localizable.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -605,6 +611,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"es-MX",
 			);
 			mainGroup = 6D133C7F19FF4C8400BD0FAB;
 			productRefGroup = 6D133C8919FF4C8400BD0FAB /* Products */;
@@ -622,6 +629,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6DCC9C751A4A2B5F00AA83A3 /* Localizable.strings in Resources */,
 				6D133C9719FF4C8400BD0FAB /* Main.storyboard in Resources */,
 				6DA519BD1A144EF900867F9A /* Images.xcassets in Resources */,
 				6DE700CC1A08A31200BE5468 /* style.css in Resources */,
@@ -737,6 +745,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				6D133C9619FF4C8400BD0FAB /* Base */,
+				6DCC9C781A4A2C2E00AA83A3 /* es-MX */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -745,8 +754,19 @@
 			isa = PBXVariantGroup;
 			children = (
 				6D133C9B19FF4C8400BD0FAB /* Base */,
+				6DCC9C791A4A2C2E00AA83A3 /* es-MX */,
 			);
 			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+		6DCC9C771A4A2B5F00AA83A3 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6DCC9C761A4A2B5F00AA83A3 /* en */,
+				6DCC9C7A1A4A2C2E00AA83A3 /* es-MX */,
+			);
+			name = Localizable.strings;
+			path = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
