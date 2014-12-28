@@ -21,7 +21,7 @@
     [button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     [button setTitleShadowColor:[UIColor kabBlueColor] forState:UIControlStateHighlighted];
     button.titleLabel.shadowOffset = CGSizeMake(0.0f, 1.0f);
-    button.titleLabel.font = [UIFont boldKabInterfaceFontOfSize:15.0f];
+    button.titleLabel.font = [UIFont boldKabInterfaceFontOfSize:UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 30.0 : 15.0];
     button.titleEdgeInsets = UIEdgeInsetsMake(-1.0f, 0.0f, 0.0f, 0.0f);
     return button;
 }
@@ -36,7 +36,7 @@
     [button setTitleShadowColor:[UIColor kabDarkTextColor] forState:UIControlStateHighlighted];
     [button setTintColor:[UIColor whiteColor]];
     button.titleLabel.shadowOffset = CGSizeMake(0.0f, 1.0f);
-    button.titleLabel.font = [UIFont boldKabInterfaceFontOfSize:15.0];
+    button.titleLabel.font = [UIFont boldKabInterfaceFontOfSize:UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 30.0 : 15.0];
     button.titleEdgeInsets = UIEdgeInsetsMake(-1.0f, 0.0f, 0.0f, 0.0f);
 
     return button;
