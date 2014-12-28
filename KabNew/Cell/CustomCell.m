@@ -67,7 +67,7 @@
     if (!_titleLabel) {
         _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(95.0f, 10.0f, 218.0f, 18.0f)];
         _titleLabel.textColor = [UIColor kabBlueColor];
-        _titleLabel.font = [UIFont boldSystemFontOfSize:14.0f];
+        _titleLabel.font = [UIFont boldSystemFontOfSize:UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 30.0 : 14.0];
         _titleLabel.textAlignment = NSTextAlignmentLeft;
         _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
 
@@ -80,7 +80,7 @@
     if (!_subtitleLabel) {
         _subtitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(95.0f, 19.0f, 218.0f, 70.0f)];
         _subtitleLabel.textColor = [UIColor lightGrayColor];
-        _subtitleLabel.font = [UIFont systemFontOfSize:12.0f];
+        _subtitleLabel.font = [UIFont systemFontOfSize:UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 24.0 : 12.0];
         _subtitleLabel.numberOfLines = 0;
         _subtitleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         _subtitleLabel.textAlignment = NSTextAlignmentLeft;
