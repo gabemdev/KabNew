@@ -10,7 +10,7 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import "GMDWebViewController.h"
 
-@interface KabTvViewController ()
+@interface KabTvViewController () <UICollectionViewDelegateFlowLayout>
 @property (nonatomic) UIButton *englishButton, *hebrewButton, *russianButton, *spanishButton, *scheduleButton;
 @property (nonatomic) UIImageView *background;
 @property (nonatomic, strong) MPMoviePlayerController *mp;
@@ -48,6 +48,7 @@
     _englishButton.alpha = 1.0f;
 }
 
+
 - (void)loadCollection {
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(share:)];
     self.navigationItem.rightBarButtonItem.tintColor = [UIColor whiteColor];
@@ -60,11 +61,10 @@
                  @"SCHEDULE",nil];
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.itemSize = CGSizeMake(140.0f, 140.0f);
     layout.scrollDirection = UICollectionViewScrollDirectionVertical;
-    layout.minimumInteritemSpacing = 10.0;
-    layout.minimumLineSpacing = 10.0;
-    layout.sectionInset = UIEdgeInsetsMake(20, 15, 13, 15);
+    
+    
+    
 
     [self.collection setCollectionViewLayout:layout];
     
@@ -88,7 +88,31 @@
                                                                         views:viewDict]];
 }
 
+
 #pragma mark - UiCollectionView
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CGSize itemSize = CGSizeMake(140, 140);
+    return itemSize;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    return 10.0;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    return 10.0;
+}
+
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+    
+    CGFloat left = self.collection.frame.size.width / 2 - 155;
+    NSLog(@"%f", left);
+    
+    return UIEdgeInsetsMake(20, left, 15, left);
+}
+
+
+
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     return 1;
 }
