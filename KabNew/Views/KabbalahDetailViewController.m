@@ -77,7 +77,7 @@
     
     _detailText = [[UITextView alloc] initWithFrame:CGRectMake(0.0f, 198.0f, self.view.bounds.size.width, 241)];
     _detailText.textColor = [UIColor kabBlueColor];
-    _detailText.font = [UIFont kabInterfaceFontOfSize:13.0f];
+    _detailText.font = [UIFont kabInterfaceFontOfSize:UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 26.0 : 13.0];
     _detailText.textAlignment = NSTextAlignmentLeft;
     _detailText.autocapitalizationType = UITextAutocapitalizationTypeSentences;
     _detailText.autocorrectionType = UITextAutocorrectionTypeNo;

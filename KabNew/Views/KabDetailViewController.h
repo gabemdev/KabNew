@@ -7,16 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-@class KabChannelSchema;
+#import "KabTVDetailViewController.h"
 
-@interface KabDetailViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
+@interface KabDetailViewController : KabTVDetailViewController
 
-@property (nonatomic) NSArray *list;
-@property (nonatomic) UIImageView *backgroundView;
-@property (nonatomic) UILabel *backgroundTitle;
-@property (nonatomic) UIImageView *titleBackgroundView;
-@property (nonatomic) KabChannelSchema *channel;
-
-@property (nonatomic) UITableView *table;
 
 @end
