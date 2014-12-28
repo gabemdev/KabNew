@@ -73,6 +73,7 @@
 		6DC48DBA1A0600D100BF99B9 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DC48DB91A0600D000BF99B9 /* MessageUI.framework */; };
 		6DC48DC01A0612CC00BF99B9 /* UIButton+kabiOSAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DC48DBF1A0612CC00BF99B9 /* UIButton+kabiOSAdditions.m */; };
 		6DCC9C751A4A2B5F00AA83A3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6DCC9C771A4A2B5F00AA83A3 /* Localizable.strings */; };
+		6DCC9C7D1A4A70BA00AA83A3 /* KabTVDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DCC9C7C1A4A70BA00AA83A3 /* KabTVDetailViewController.m */; };
 		6DE700C01A088D4000BE5468 /* GMHudView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DE700BD1A088D4000BE5468 /* GMHudView.m */; };
 		6DE700C11A088D4000BE5468 /* GMWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DE700BF1A088D4000BE5468 /* GMWebView.m */; };
 		6DE700C71A08998C00BE5468 /* GMHUDWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DE700C41A08998C00BE5468 /* GMHUDWindow.m */; };
@@ -217,6 +218,8 @@
 		6DCC9C781A4A2C2E00AA83A3 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/Main.strings"; sourceTree = "<group>"; };
 		6DCC9C791A4A2C2E00AA83A3 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		6DCC9C7A1A4A2C2E00AA83A3 /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-MX"; path = "es-MX.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		6DCC9C7B1A4A70BA00AA83A3 /* KabTVDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KabTVDetailViewController.h; path = Data/KabTVDetailViewController.h; sourceTree = "<group>"; };
+		6DCC9C7C1A4A70BA00AA83A3 /* KabTVDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KabTVDetailViewController.m; path = Data/KabTVDetailViewController.m; sourceTree = "<group>"; };
 		6DE700BC1A088D4000BE5468 /* GMHudView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GMHudView.h; path = Data/GMHudView.h; sourceTree = "<group>"; };
 		6DE700BD1A088D4000BE5468 /* GMHudView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GMHudView.m; path = Data/GMHudView.m; sourceTree = "<group>"; };
 		6DE700BE1A088D4000BE5468 /* GMWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GMWebView.h; path = Data/GMWebView.h; sourceTree = "<group>"; };
@@ -375,6 +378,8 @@
 				6D133CF71A05DB1300BD0FAB /* Parser.m */,
 				6D9BCC211A11C8F900450DBE /* GMD.h */,
 				6D9BCC221A11C8F900450DBE /* GMD.m */,
+				6DCC9C7B1A4A70BA00AA83A3 /* KabTVDetailViewController.h */,
+				6DCC9C7C1A4A70BA00AA83A3 /* KabTVDetailViewController.m */,
 			);
 			name = Data;
 			sourceTree = "<group>";
@@ -689,6 +694,7 @@
 				6D133D291A05E8A500BD0FAB /* EntityChunk.m in Sources */,
 				6D133D491A05E9F200BD0FAB /* AFURLConnectionOperation.m in Sources */,
 				6DC48DA81A05F71400BF99B9 /* BlogCell.m in Sources */,
+				6DCC9C7D1A4A70BA00AA83A3 /* KabTVDetailViewController.m in Sources */,
 				6D133D461A05E9F200BD0FAB /* AFJSONRequestOperation.m in Sources */,
 				6D133D5F1A05F22900BD0FAB /* GMDPTRSimple.m in Sources */,
 				6D133D431A05E9F200BD0FAB /* AFHTTPClient.m in Sources */,
