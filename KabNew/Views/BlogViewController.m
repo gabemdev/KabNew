@@ -15,6 +15,7 @@
 #import "AFImageRequestOperation.h"
 #import "UIImageView+AFNetworking.h"
 #import "BlogDetailViewController.h"
+#import "GMHudView.h"
 
 @interface BlogViewController ()
 
@@ -26,6 +27,7 @@
 @synthesize items, itemArray;
 @synthesize cellImage = _cellImage;
 @synthesize table = _table;
+
 
 - (instancetype)init {
     if ((self = [super init])) {
@@ -67,11 +69,12 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController.navigationBar setHidden:NO];
+    [self loadData];
     [self items];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    [self loadData];
+    
     [super viewDidAppear:animated];
 }
 
@@ -98,6 +101,8 @@
 
 - (void)loadData {
     double delayInSeconds = 0.3;
+    GMHudView *hud = [[GMHudView alloc] initWithTitle:@"Loading..." loading:YES];
+    [hud show];
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds *NSEC_PER_SEC);
     dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_after(popTime, backgroundQueue, ^{
@@ -106,8 +111,10 @@
                 Parser *rssParser = [[Parser alloc] init];
                 [rssParser parseRssFeed:NSLocalizedString(@"Blog", nil) withDelegate:self];
                 [self.table reloadData];
+                [hud completeAndDismissWithTitle:@"Loaded"];
             } else {
-                [self.table reloadData];
+                [self reloadTableData];
+                [hud completeAndDismissWithTitle:@"Loaded"];
             }
         });
     });

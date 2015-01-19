@@ -129,15 +129,16 @@
     KabChannelSchema* unity = [[KabChannelSchema alloc]init];
     KabChannelSchema* zohar = [[KabChannelSchema alloc]init];
     
+    [inner initWithTitle:@"The Inner Stream"
+         withDescription:@"The real news of the day from a Kabbalistic perspective."
+               cellImage:@"Inner.png"
+         backgroundImage:@"innerstream.png"
+              detailText:@"The Inner Stream is all about the basics of Kabbalah and how it relates to you and the world around you.\n\nThe flow from one daily Kabbalah lesson to the next is the real news of the day and we explore it with talk, music, video clips and live guests.\n\nIt's a live social network featuring you and your questions.\nCall in, write in, drop in and join us as we prepare for the live daily Kabbalah lesson from Israel."
+                     url:@"http://tv.kabbalah.info/video/inner-stream"
+                    view:@"InnerStreamView"
+                iPadView:@"InnerIpadDetail"];
+    
     //InnerStream
-    inner.title = @"The Inner Stream";
-    inner.description = @"The real news of the day from a Kabbalistic perspective.";
-    inner.cellImage = @"Inner.png";
-    inner.BGTitleImage = @"innerstream.png";
-    inner.detailText = @"The Inner Stream is all about the basics of Kabbalah and how it relates to you and the world around you.\n\nThe flow from one daily Kabbalah lesson to the next is the real news of the day and we explore it with talk, music, video clips and live guests.\n\nIt's a live social network featuring you and your questions.\nCall in, write in, drop in and join us as we prepare for the live daily Kabbalah lesson from Israel.";
-    inner.url = @"http://tv.kabbalah.info/video/inner-stream";
-    inner.view = @"InnerStreamView";
-    inner.ipadView = @"InnerIpadDetail";
     
     //Ask the Kabbalist
     ask.title = @"Ask The Kabbalist";

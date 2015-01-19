@@ -19,4 +19,15 @@
     }
     return self;
 }
+
+- (void)initWithTitle:(NSString *)title withDescription:(NSString *)desc cellImage:(NSString *)cellImage backgroundImage:(NSString *)backgroundImage detailText:(NSString *)detailText url:(NSString *)url view:(NSString *)view iPadView:(NSString *)ipadView {
+    self.title = title;
+    self.description = desc;
+    self.cellImage = cellImage;
+    self.BGTitleImage = backgroundImage;
+    self.detailText = detailText;
+    self.url = url;
+    self.view = view;
+    self.ipadView = ipadView;
+}
 @end

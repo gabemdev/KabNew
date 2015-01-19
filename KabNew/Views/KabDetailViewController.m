@@ -19,11 +19,13 @@
 #pragma mark - UIViewController
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.channel = [[KabChannelSchema alloc] initWithDetailView:@"stream"];
     
     
 }
 
+- (void)initWithDetailView:(NSString *)view {
+    self.channel = [[KabChannelSchema alloc] initWithDetailView:view];
+}
 
 
 

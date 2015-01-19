@@ -24,5 +24,12 @@
 
 
 - (instancetype) initWithDetailView:(NSString *)plistName NS_DESIGNATED_INITIALIZER;
-
+- (void)initWithTitle:(NSString *)title
+      withDescription:(NSString *)desc
+            cellImage:(NSString *)cellImage
+      backgroundImage:(NSString *)backgroundImage
+           detailText:(NSString *)detailText
+                  url:(NSString *)url
+                 view:(NSString *)view
+             iPadView:(NSString *)ipadView;
 @end

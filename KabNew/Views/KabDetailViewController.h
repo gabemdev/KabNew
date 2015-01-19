@@ -11,5 +11,6 @@
 
 @interface KabDetailViewController : KabTVDetailViewController
 
+- (void)initWithDetailView:(NSString *)view;
 
 @end

@@ -11,4 +11,6 @@
 @interface KabbalahViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic) NSArray *list;
+
+
 @end
