@@ -58,6 +58,7 @@
                  @"עברית",
                  @"PYCCKий",
                  @"ESPAÑOL",
+                 @"ITALIANO",
                  @"SCHEDULE",nil];
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
@@ -91,16 +92,16 @@
 
 #pragma mark - UiCollectionView
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    CGSize itemSize = CGSizeMake(140, 140);
+    CGSize itemSize = CGSizeMake(185, 185);
     return itemSize;
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
-    return 10.0;
+    return 1.0;
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
-    return 10.0;
+    return 1.0;
 }
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
@@ -108,7 +109,8 @@
     CGFloat left = self.collection.frame.size.width / 2 - 155;
     NSLog(@"%f", left);
     
-    return UIEdgeInsetsMake(20, left, 15, left);
+//    return UIEdgeInsetsMake(20, left, 15, left);
+    return UIEdgeInsetsMake(1, 2, 1, 2);
 }
 
 
@@ -126,7 +128,7 @@
     cell.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.1];
     cell.layer.cornerRadius = 3;
     UILabel *titleLabel = (UILabel *)[[UILabel alloc] init];
-    titleLabel.frame = CGRectMake(0.0f, 49.0f, 140.0f, 42.0f);
+    titleLabel.frame = CGRectMake(0.0f, cell.frame.size.height / 2 - 20, 185.0f, 42.0f);
     titleLabel.textColor = [UIColor kabBlueColor];
     titleLabel.shadowColor = [UIColor whiteColor];
     titleLabel.shadowOffset = CGSizeMake(0.0f, 1.0f);
@@ -164,7 +166,7 @@
         
         [self loadVideoPlayerplayURL:url];
         
-    } else if (indexPath.row == 4) {
+    } else if (indexPath.row == 5) {
         GMDWebViewController *viewController = [[GMDWebViewController alloc] init];
         [viewController loadURL:[NSURL URLWithString:@"http://m.kab.tv/ios/Schedule.html"]];
         [viewController.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
