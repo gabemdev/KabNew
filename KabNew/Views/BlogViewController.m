@@ -17,16 +17,29 @@
 #import "BlogDetailViewController.h"
 #import "GMHudView.h"
 
-@interface BlogViewController ()
+@interface BlogViewController ()<UITableViewDataSource, UITableViewDelegate, NSXMLParserDelegate, GMDPTRViewDelegate> {
+    
+    long long expectedLength;
+    long long currentLength;
+    
+    NSArray *items;
+    NSArray *itemsToDisplay;
+}
+
+@property (nonatomic) UITableView *table;
+@property (nonatomic, retain) NSArray *itemsArray;
+@property (nonatomic, retain) NSMutableArray *itemArray;
+@property (nonatomic, retain) UIImageView *cellImage;
+@property (nonatomic, strong) GMDPTRView *pullToRefreshView;
 
 - (void)loadData;
 
 @end
 
 @implementation BlogViewController
-@synthesize items, itemArray;
-@synthesize cellImage = _cellImage;
-@synthesize table = _table;
+//@synthesize items, itemArray;
+//@synthesize cellImage = _cellImage;
+//@synthesize table = _table;
 
 
 - (instancetype)init {
@@ -70,7 +83,7 @@
     [super viewWillAppear:animated];
     [self.navigationController.navigationBar setHidden:NO];
     [self loadData];
-    [self items];
+    [self itemsArray];
 }
 
 - (void)viewDidAppear:(BOOL)animated {

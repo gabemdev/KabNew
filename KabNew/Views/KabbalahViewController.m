@@ -11,10 +11,12 @@
 #import "KabChannelSchema.h"
 #import "KabbalahDetailViewController.h"
 
-@interface KabbalahViewController ()
+@interface KabbalahViewController ()<UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic) UITableView *table;
 @property (nonatomic, retain) NSArray *channels;
 @property (nonatomic, retain) NSMutableDictionary *channelImages;
+
+@property (nonatomic) NSArray *list;
 
 
 

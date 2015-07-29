@@ -13,15 +13,26 @@
 
 @interface KabbalahDetailViewController ()
 @property (nonatomic) UIScrollView *scrollView;
+@property (nonatomic) UIImageView *mainTitle;
+@property (nonatomic) UIImageView *textBackground;
+@property (nonatomic) UITextView *detailText;
+@property (nonatomic) UIButton *viewButton;
+
+@property (nonatomic, retain) NSString *detailTitle;
+@property (nonatomic, retain) NSString *detailDescription;
+@property (nonatomic, retain) NSString *detailTextString;
+@property (nonatomic, retain) NSString *detailImage;
+@property (nonatomic, retain) NSString *url;
+@property (nonatomic, retain) NSString *detailView;
 
 @end
 
 @implementation KabbalahDetailViewController
-@synthesize mainTitle = _mainTitle;
-@synthesize textBackground = _textBackground;
-@synthesize detailText = _detailText;
-@synthesize viewButton = _viewButton;
-@synthesize scrollView = _scrollView;
+//@synthesize mainTitle = _mainTitle;
+//@synthesize textBackground = _textBackground;
+//@synthesize detailText = _detailText;
+//@synthesize viewButton = _viewButton;
+//@synthesize scrollView = _scrollView;
 
 - (UIScrollView *)scrollView {
     if (!_scrollView) {

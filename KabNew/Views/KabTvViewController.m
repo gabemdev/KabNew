@@ -141,41 +141,31 @@
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row == 0) {
-        NSString *urlText = [NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-eng-mobile.stream/playlist.m3u8"];
-        NSURL *url = [NSURL URLWithString:urlText];
-        
-        [self loadVideoPlayerplayURL:url];
-        
-        
-    } else if (indexPath.row == 1) {
-        NSString *urlText = [NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-heb-mobile.stream/playlist.m3u8"];
-        NSURL *url = [NSURL URLWithString:urlText];
-        
-        [self loadVideoPlayerplayURL:url];
-        
-    } else if (indexPath.row == 2) {
-        NSString *urlText = [NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-rus-mobile.stream/playlist.m3u8"];
-        NSURL *url = [NSURL URLWithString:urlText];
-        
-        [self loadVideoPlayerplayURL:url];
-        
-    } else if (indexPath.row == 3) {
-        NSString *urlText = [NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-spa-mobile.stream/playlist.m3u8"];
-        NSURL *url = [NSURL URLWithString:urlText];
-        
-        [self loadVideoPlayerplayURL:url];
-        
-    } else if (indexPath.row == 5) {
-        GMDWebViewController *viewController = [[GMDWebViewController alloc] init];
-        [viewController loadURL:[NSURL URLWithString:@"http://m.kab.tv/ios/Schedule.html"]];
-        [viewController.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
-        [self.tabBarController.tabBar setHidden:YES];
-        [self.navigationController pushViewController:viewController animated:YES];
+    
+    switch (indexPath.row) {
+        case 0: [self loadVideoPlayerplayURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-eng-mobile.stream/playlist.m3u8"]]]; break;
+        case 1: [self loadVideoPlayerplayURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-heb-mobile.stream/playlist.m3u8"]]]; break;
+        case 2: [self loadVideoPlayerplayURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-rus-mobile.stream/playlist.m3u8"]]]; break;
+        case 3: [self loadVideoPlayerplayURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-spa-mobile.stream/playlist.m3u8"]]]; break;
+        case 5: [self loadWebView]; break;
+        default: [self loadAlertWithTitle:@"Alert" andMessage:@"Language still not supported"]; break;
     }
 }
 
+- (void)loadWebView {
+    GMDWebViewController *viewController = [[GMDWebViewController alloc] init];
+    [viewController loadURL:[NSURL URLWithString:@"http://m.kab.tv/ios/Schedule.html"]];
+    [viewController.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
+    [self.tabBarController.tabBar setHidden:YES];
+    [self.navigationController pushViewController:viewController animated:YES];
+}
 
+- (void)loadAlertWithTitle:(NSString *)title andMessage:(NSString *)message {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancel];
+    [self presentViewController:alert animated:YES completion:nil];
+}
 #pragma mark - Media
 
 - (void)loadVideoPlayerplayURL:(NSURL *)url {
@@ -191,6 +181,8 @@
                                                  name:MPMoviePlayerPlaybackStateDidChangeNotification
                                                object:[media moviePlayer]];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayBackStateChange:) name:MPMoviePlayerPlaybackDidFinishNotification object:[media moviePlayer]];
+    
     
     
 }
@@ -198,23 +190,38 @@
 - (void)moviePlayBackStateChange:(NSNotification *)notification
 {
     MPMoviePlayerController *player = notification.object;
-    //are we currently playing?
-    if (player.playbackState == MPMoviePlaybackStatePlaying)
-    { //yes->do something as we are playing...
+    switch (player.playbackState) {
+        case MPMoviePlaybackStatePlaying: NSLog(@"Normal Playing"); break;
+        case MPMoviePlaybackStatePaused: NSLog(@"Paused playing"); break;
+        case MPMoviePlaybackStateStopped: NSLog(@"Stopped"); break;
+        case MPMoviePlaybackStateInterrupted: [self loadAlertWithTitle:@"Alert" andMessage:@"Feed is not available at this time, please try again later."]; break;
+        default: break;
     }
-    else if (player.playbackState == MPMoviePlaybackStateStopped)
-    { //nope->do something else since we are not playing
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Oops"
-                                                                       message:@"Feed is not available at this time"
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-        
-        UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            NSLog(@"OK Button");
-        }];
-        [alert addAction:okButton];
-        
-        [self presentViewController:alert animated:YES completion:nil];
+    
+    switch (player.loadState) {
+        case MPMovieLoadStatePlayable: NSLog(@"Playable"); break;
+        case MPMovieLoadStateStalled: NSLog(@"Stalled"); break;
+        case MPMovieLoadStatePlaythroughOK: NSLog(@"Playtrhough ok "); break;
+        case MPMovieLoadStateUnknown: NSLog(@"Unknown"); break;
+        default: break;
     }
+    
+    
+    NSDictionary *notificationUserInfo = [notification userInfo];
+    NSNumber *resultValue = [notificationUserInfo objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
+    MPMovieFinishReason reason = [resultValue intValue];
+    NSError *mpError = [notificationUserInfo objectForKey:@"error"];
+    switch (reason) {
+        case MPMovieFinishReasonPlaybackEnded: NSLog(@"Ended"); break;
+        case MPMovieFinishReasonPlaybackError: NSLog(@"Error:"); [self loadAlertWithTitle:@"Alert" andMessage:mpError.localizedDescription]; break;
+        case MPMovieFinishReasonUserExited: NSLog(@"User exited"); break;
+        default: break;
+    }
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:MPMoviePlayerPlaybackDidFinishNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:MPMoviePlayerPlaybackStateDidChangeNotification object:nil];
 }
 
 #pragma mark - Sharing

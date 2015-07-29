@@ -8,9 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface KabbalahViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
-
-@property (nonatomic) NSArray *list;
-
+@interface KabbalahViewController : UIViewController
 
 @end

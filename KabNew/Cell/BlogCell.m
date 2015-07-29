@@ -21,33 +21,31 @@
         [self addSubview:self.cellImageView];
         
         
-        NSDictionary *viewDict = @{@"titleLabel": _titleLabel,
-                                   @"subtitleLabel": _subtitleLabel,
-                                   @"cellImage": _cellImageView};
+        NSDictionary *viewDict = NSDictionaryOfVariableBindings(_titleLabel, _subtitleLabel, _cellImageView);
         
         //Title
-        NSArray *title_H = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-90-[titleLabel]|"
+        NSArray *title_H = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-90-[_titleLabel]|"
                                                                    options:0 metrics:nil
                                                                      views:viewDict];
         
-        NSArray *title_V = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8-[titleLabel(45)]"
+        NSArray *title_V = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8-[_titleLabel(45)]"
                                                                    options:0 metrics:nil
                                                                      views:viewDict];
         
         //Subtitle
-        NSArray *subtitle_H = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-90-[subtitleLabel]-|"
+        NSArray *subtitle_H = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-90-[_subtitleLabel]-|"
                                                                       options:0 metrics:nil
                                                                         views:viewDict];
-        NSArray *subtitle_V = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-60-[subtitleLabel(20)]"
+        NSArray *subtitle_V = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-60-[_subtitleLabel(20)]"
                                                                       options:0 metrics:nil
                                                                         views:viewDict];
         
         //Cell Image
-        NSArray *image_H = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-6-[cellImage(80)]"
+        NSArray *image_H = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-6-[_cellImageView(80)]"
                                                                    options:0 metrics:nil
                                                                      views:viewDict];
         
-        NSArray *image_V = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8-[cellImage(65)]"
+        NSArray *image_V = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8-[_cellImageView(65)]"
                                                                    options:0 metrics:nil
                                                                      views:viewDict];
         
