@@ -11,9 +11,16 @@
 #import <Twitter/Twitter.h>
 #import <Accounts/Accounts.h>
 
+typedef enum ScrollDirection {
+    ScrollDirectionNone,
+    ScrollDirectionRight,
+    ScrollDirectionLeft,
+    ScrollDirectionUp,
+    ScrollDirectionDown,
+    ScrollDirectionCrazy,
+} ScrollDirection;
 
-
-@interface BlogDetailViewController ()
+@interface BlogDetailViewController () <UIScrollViewDelegate>
 - (void)_updateBrowserUI;
 @end
 
@@ -24,6 +31,7 @@
     UIBarButtonItem *_forwardBarButton;
     UIBarButtonItem *_reloadBarButton;
     UIBarButtonItem *_shareBarButton;
+    
 }
 @synthesize item;
 @synthesize webView = _webView;
@@ -39,6 +47,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.lastContentOffset = 0;
     [self.navigationItem setTitle:[NSString stringWithFormat:@"Detail"]];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     
@@ -51,6 +60,7 @@
     _webView.translatesAutoresizingMaskIntoConstraints = NO;
     _webView.delegate = self;
     _webView.scalesPageToFit = NO;
+    _webView.scrollView.delegate = self;
     
     
     NSString *title = [NSString stringWithFormat:@"<b>%@</b>", item[@"title"]];
@@ -151,44 +161,30 @@
 }
 
 - (void)openActionSheet:(id)sender {
-    
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.1) {
-        UIActionSheet *actionSheet = nil;
+    if ([UIActivityViewController class]) {
+        NSString *url = item[@"link"];
+        NSArray *items = @[self, [NSURL URLWithString:[NSString stringWithFormat:@"%@", url]]];
+        UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:items
+                                                                                             applicationActivities:nil];
         
-        if ([MFMailComposeViewController canSendMail] == NO) {
-            actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Copy URL", nil];
-        } else {
-            actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Copy URL", @"Email URL", nil];
-        }
-        actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-        [actionSheet showInView:self.navigationController.view];
-    } else {
-        if ([UIActivityViewController class]) {
-            NSString *url = item[@"link"];
-            NSArray *items = @[self, [NSURL URLWithString:[NSString stringWithFormat:@"%@", url]]];
-            UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:items
-                                                                                                 applicationActivities:nil];
-            
-            activityViewController.excludedActivityTypes = [[NSArray alloc] initWithObjects:UIActivityTypePostToWeibo, UIActivityTypePrint, UIActivityTypeSaveToCameraRoll, UIActivityTypePostToTencentWeibo, UIActivityTypePostToFlickr, UIActivityTypePostToVimeo, UIActivityTypeCopyToPasteboard, UIActivityTypeAirDrop, nil];
-            
-            UIActivityViewControllerCompletionWithItemsHandler completionBlock = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-                if (completed) {
-                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Done" message:nil delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-                    [alert show];
-                } else {
-                    [self updateToolBar];
-                    
-                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error!" message:@"Oops! Something went wrong!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-                    [alert show];
-                }
-            };
-            activityViewController.completionWithItemsHandler = completionBlock;
-            [self presentViewController:activityViewController animated:YES completion:nil];
-            
-            
-        }
+        activityViewController.excludedActivityTypes = [[NSArray alloc] initWithObjects:UIActivityTypePostToWeibo, UIActivityTypePrint, UIActivityTypeSaveToCameraRoll, UIActivityTypePostToTencentWeibo, UIActivityTypePostToFlickr, UIActivityTypePostToVimeo, UIActivityTypeCopyToPasteboard, UIActivityTypeAirDrop, nil];
+        [activityViewController.navigationItem.leftBarButtonItem setTintColor:[UIColor whiteColor]];
+        
+        UIActivityViewControllerCompletionWithItemsHandler completionBlock = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+            if (completed) {
+                [self alertWithTitle:@"Done" andMessage:nil];
+            } else {
+                [self updateToolBar];
+            }
+            if (activityError) {
+                [self alertWithTitle:@"Error!" andMessage:activityError.localizedDescription];
+            }
+        };
+        activityViewController.completionWithItemsHandler = completionBlock;
+        [self presentViewController:activityViewController animated:YES completion:^{
+            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+        }];
     }
-    
 }
 
 - (id) activityViewController:(UIActivityViewController *)activityViewController itemForActivityType:(NSString *)activityType {
@@ -206,7 +202,6 @@
         [body appendString:@"Like us on <a href=\"https://www.facebook.com/KabbalahApp\">Facebook</a></br></p></body></html>"];
         return body;
     } else if ([activityType isEqualToString:UIActivityTypePostToFacebook] || [activityType isEqualToString:UIActivityTypePostToTwitter] || [activityType isEqualToString:UIActivityTypeMessage]) {
-
         return string;
     } else {
         return nil;
@@ -324,6 +319,57 @@
     else if (result == MFMailComposeResultCancelled) {
         [self.navigationController setToolbarHidden:NO];
         [self updateToolBar];
+    }
+}
+
+#pragma mark - Alert
+- (void)alertWithTitle:(NSString *)title andMessage:(NSString *)message {
+    if ([UIDevice currentDevice].systemVersion.floatValue < 8.) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
+    } else {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancel =[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+        [alert addAction:cancel];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+}
+
+#pragma mark - Scroll
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+//    CGFloat yOffset = scrollView.contentOffset.y;
+//    if (yOffset > 100) {
+//    } else {
+//    }
+    
+    ScrollDirection scrollDirection;
+    if (self.lastContentOffset > scrollView.contentOffset.y || scrollView.contentOffset.y <= 0) {
+        scrollDirection = ScrollDirectionDown;
+    } else if (self.lastContentOffset < scrollView.contentOffset.y || scrollView.contentOffset.y >= 450)
+    {
+        scrollDirection = ScrollDirectionUp;
+    }
+    
+    self.lastContentOffset = scrollView.contentOffset.y;
+    
+    switch (scrollDirection) {
+        case ScrollDirectionUp: {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                    self.navigationController.toolbar.frame = CGRectMake(0.0f, [[UIScreen mainScreen] bounds].size.height, _webView.frame.size.width, 44.0f);
+                } completion:nil];
+            });
+            break;
+        }
+        case ScrollDirectionDown: {
+            [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                [self updateToolBar];
+            } completion:nil];
+            break;
+        }
+        default:
+            break;
     }
 }
 
