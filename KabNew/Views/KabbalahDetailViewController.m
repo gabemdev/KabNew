@@ -10,6 +10,7 @@
 #import "UIColor+kabIOSAdditions.h"
 #import "UIFont+kabiOSAdditions.h"
 #import "UIButton+kabiOSAdditions.h"
+#import <AFNetworking/UIImageView+AFNetworking.h>
 
 @interface KabbalahDetailViewController ()
 @property (nonatomic) UIScrollView *scrollView;
@@ -18,21 +19,9 @@
 @property (nonatomic) UITextView *detailText;
 @property (nonatomic) UIButton *viewButton;
 
-@property (nonatomic, retain) NSString *detailTitle;
-@property (nonatomic, retain) NSString *detailDescription;
-@property (nonatomic, retain) NSString *detailTextString;
-@property (nonatomic, retain) NSString *detailImage;
-@property (nonatomic, retain) NSString *url;
-@property (nonatomic, retain) NSString *detailView;
-
 @end
 
 @implementation KabbalahDetailViewController
-//@synthesize mainTitle = _mainTitle;
-//@synthesize textBackground = _textBackground;
-//@synthesize detailText = _detailText;
-//@synthesize viewButton = _viewButton;
-//@synthesize scrollView = _scrollView;
 
 - (UIScrollView *)scrollView {
     if (!_scrollView) {
@@ -50,6 +39,15 @@
         self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     }
     return self;
+}
+
+- (void)setDetailItem:(id)selectedItem {
+    if (_selected != selectedItem) {
+        _selected = selectedItem;
+        
+        // Update the view.
+        [self loadUIViews];
+    }
 }
 
 - (void)viewDidLoad {
@@ -75,10 +73,9 @@
     [_scrollView setBackgroundColor:[UIColor kabStaticColor]];
     
     //Main title Image
-    UIImage *titleImage = [UIImage imageNamed:[self.channel valueForKey:@"BGTitleImage"]];
-    _mainTitle = [[UIImageView alloc] init];
-    _mainTitle.frame = CGRectMake(0.0, 3.0f, self.view.bounds.size.width, 182.0f);
-    [_mainTitle setImage:titleImage];
+    _mainTitle = [[UIImageView alloc] initWithFrame:CGRectMake(0, 3, self.view.bounds.size.width, 182)];
+    _mainTitle.contentMode = UIViewContentModeScaleAspectFill;
+    [_mainTitle setImageWithURL:self.selected.backgroundURL placeholderImage:[UIImage imageNamed:@"bg_profile_empty"]];
     [_scrollView addSubview:_mainTitle];
     
     //detail text
@@ -97,8 +94,8 @@
     _detailText.backgroundColor = [UIColor clearColor];
     [_scrollView addSubview:_detailText];
     
-    [_detailText setText:[self.channel valueForKey:@"detailText"]];
-    self.title = [self.channel valueForKey:@"title"];
+    [_detailText setText:self.selected.detailDescription];
+    self.title = self.selected.title;
     
     [self viewButton];
     

@@ -7,12 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "KabChannelSchema.h"
+#import "FeedModel.h"
+
 
 @interface KabbalahDetailViewController : UIViewController<UITextFieldDelegate, UIActionSheetDelegate, UIScrollViewDelegate>
 
-@property (nonatomic) KabChannelSchema *channel;
+@property (nonatomic) FeedModel *selected;
 
 - (void)openActionSheet:(id)sender;
+- (void)setDetailItem:(id)selectedItem;
 
 @end
