@@ -260,30 +260,15 @@
         [alertView show];
     }
     
-    else if (!self.nameTextField.text.length >= 3) {
+    else if (first.length <= 3 || last.length <= 3 || username.length <=3) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Oops"
-                                                            message:@"Name is too short!"
+                                                            message:@"Field is too short!"
                                                            delegate:nil
                                                   cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
         [alertView show];
     }
     
-    else if (!self.lastNameTextField.text.length >= 3) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Oops"
-                                                            message:@"Last Name is too short!"
-                                                           delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-        [alertView show];
-    }
-    
-    else if (!self.usernameTextField.text.length >= 3) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Oops"
-                                                            message:@"Username is too short!"
-                                                           delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-        [alertView show];
-        
-    }
-    
-    else if (!self.passwordTextField.text.length >= 6) {
+    else if (password.length <= 6) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Oops"
                                                             message:@"Password does not meet the requirements!"
                                                            delegate:nil
@@ -291,7 +276,7 @@
         [alertView show];
     }
     
-    else if (!self.emailTextField.text.length >= 5) {
+    else if (email.length <= 5) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Oops"
                                                             message:@"Please enter a valid email address"
                                                            delegate:nil

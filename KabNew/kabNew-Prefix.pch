@@ -15,5 +15,10 @@
     #import "UIColor+kabIOSAdditions.h"
     #import "UIFont+kabiOSAdditions.h"
     #import "GMD.h"
+    #import "AFNetworking.h"
+    #import "Reachability.h"
+
+#define IS_OS_8_OR_LATER    ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
+#define IS_OS_LESS_THAN_8   ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0)
 
 #endif

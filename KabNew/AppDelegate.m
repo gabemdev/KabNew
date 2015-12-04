@@ -9,33 +9,49 @@
 #import "AppDelegate.h"
 #import "KabbalahViewController.h"
 #import "BlogViewController.h"
+#import "BlogDetailViewController.h"
 #import "KabTvViewController.h"
 #import "MediaViewController.h"
 #import "LoginViewController.h"
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
-#import "TestFlight.h"
 
 
-@interface AppDelegate ()
+@interface AppDelegate () <UISplitViewControllerDelegate>
 
 @end
 
 @implementation AppDelegate
 
++ (AppDelegate *)sharedDelegate {
+    return (AppDelegate *)[[UIApplication sharedApplication] delegate];
+}
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    [Fabric with:@[CrashlyticsKit]];
     
-    [self setTabBar];
-    _window.rootViewController = _tabBarController;
+    _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     _window.backgroundColor = [UIColor whiteColor];
-    [self.tabBarController setSelectedIndex:2];
     
     [self setStyle];
-    [Fabric with:@[CrashlyticsKit]];
-    [TestFlight takeOff:@"751fab65-d54b-404b-9eef-137f6836ff9b"];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        UISplitViewController *splitViewController = [[UISplitViewController alloc] init];
+        BlogViewController *rootViewController = [[BlogViewController alloc] init];
+        BlogDetailViewController *detailViewController = [[BlogDetailViewController alloc] init];
+        UINavigationController *root = [[UINavigationController alloc] initWithRootViewController:rootViewController];
+        UINavigationController *detailNav = [[UINavigationController alloc] initWithRootViewController:detailViewController];
+        splitViewController.viewControllers = @[root, detailNav];
+        
+        splitViewController.delegate = self;
+        _window.rootViewController = splitViewController;
+    } else {
+        [self setTabBar];
+        _window.rootViewController = _tabBarController;
+        [self.tabBarController setSelectedIndex:2];
+    }
     
     [_window makeKeyAndVisible];
     
@@ -65,6 +81,19 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+#pragma mark - Split view
+
+
+#pragma mark - Orientation
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window
+{
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        return UIInterfaceOrientationMaskLandscape;
+    } else {
+        return UIInterfaceOrientationMaskPortrait;
+    }
+}
+
 #pragma mark - Appearance
 - (void)setStyle {
     //Status Bar
@@ -75,6 +104,7 @@
     [navigationBar setBarStyle:UIBarStyleBlack];
     
     [navigationBar setBarTintColor:[UIColor kabBlueColor]];
+    [navigationBar setTintColor: [UIColor whiteColor]];
     [navigationBar setTitleVerticalPositionAdjustment:-1.0f forBarMetrics:UIBarMetricsDefault];
     
     NSShadow *shadow = [NSShadow new];
@@ -85,6 +115,8 @@
                                             NSShadowAttributeName: shadow,
                                             NSForegroundColorAttributeName: [UIColor whiteColor]
                                             }];
+    
+    [[UIBarButtonItem appearanceWhenContainedIn:[UINavigationBar class], nil] setTintColor:[UIColor whiteColor]];
     
     //Toolbar
     UIToolbar *toolbar = [UIToolbar appearance];
@@ -118,35 +150,35 @@
     
     
     //Tab Bar Items
-    UIViewController *kabbalah = [[KabbalahViewController alloc] init];
+    KabbalahViewController *kabbalah = [[KabbalahViewController alloc] init];
     UINavigationController *kabNav = [[UINavigationController alloc] initWithRootViewController:kabbalah];
     [kabNav.navigationBar setTranslucent:NO];
     [kabbalah.tabBarItem setImage:[[UIImage imageNamed:@"140-gradhat"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]];
     [kabbalah.tabBarItem setSelectedImage:[[UIImage imageNamed:@"140-gradhat"] imageWithRenderingMode:UIImageRenderingModeAutomatic]];
     [kabbalah.tabBarItem setImageInsets:insets];
     
-    UIViewController *blog = [[BlogViewController alloc] init];
+    BlogViewController *blog = [[BlogViewController alloc] init];
     UINavigationController *blogNav = [[UINavigationController alloc] initWithRootViewController:blog];
     [blogNav.navigationBar setTranslucent:NO];
     [blog.tabBarItem setImage:[[UIImage imageNamed:@"29-heart"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]];
     [blog.tabBarItem setSelectedImage:[[UIImage imageNamed:@"29-heart"] imageWithRenderingMode:UIImageRenderingModeAutomatic]];
     [blog.tabBarItem setImageInsets:insets];
     
-    UIViewController *kabTv = [[KabTvViewController alloc] init];
+    KabTvViewController *kabTv = [[KabTvViewController alloc] init];
     UINavigationController *kabTvNav = [[UINavigationController alloc] initWithRootViewController:kabTv];
     [kabTvNav.navigationBar setTranslucent:NO];
     [kabTv.tabBarItem setImage:[[UIImage imageNamed:@"107-widescreen"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]];
     [kabTv.tabBarItem setSelectedImage:[[UIImage imageNamed:@"107-widescreen"] imageWithRenderingMode:UIImageRenderingModeAutomatic]];
     [kabTv.tabBarItem setImageInsets:insets];
     
-    UIViewController *media = [[MediaViewController alloc] init];
+    MediaViewController *media = [[MediaViewController alloc] init];
     UINavigationController *mediaNav = [[UINavigationController alloc] initWithRootViewController:media];
     [mediaNav.navigationBar setTranslucent:NO];
     [media.tabBarItem setImage:[[UIImage imageNamed:@"56-cloud"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]];
     [media.tabBarItem setSelectedImage:[[UIImage imageNamed:@"56-cloud"] imageWithRenderingMode:UIImageRenderingModeAutomatic]];
     [media.tabBarItem setImageInsets:insets];
     
-    UIViewController *ecView = [[LoginViewController alloc] init];
+    LoginViewController *ecView = [[LoginViewController alloc] init];
     UINavigationController *ecNav = [[UINavigationController alloc] initWithRootViewController:ecView];
     [ecNav.navigationBar setTranslucent:NO];
     [ecView.tabBarItem setImage:[[UIImage imageNamed:@"123-id-card"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]];

@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface KabbalahViewController : UIViewController
-
+@property (nonatomic) Reachability *internetReach;
 @end

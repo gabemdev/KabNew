@@ -14,6 +14,7 @@
 
 @property (nonatomic) GMWebView *webView;
 @property (nonatomic, retain) NSDictionary *item;
+@property (nonatomic, assign) CGFloat lastContentOffset;
 
 - (void)loadURL:(NSURL *)url;
 - (NSURL *)currentURL;

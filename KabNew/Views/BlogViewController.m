@@ -11,8 +11,8 @@
 #import "Parser.h"
 #import "DocumentRoot.h"
 #import "Element.h"
-#import "AFXMLRequestOperation.h"
-#import "AFImageRequestOperation.h"
+//#import "AFXMLRequestOperation.h"
+//#import "AFImageRequestOperation.h"
 #import "UIImageView+AFNetworking.h"
 #import "BlogDetailViewController.h"
 #import "GMHudView.h"
@@ -59,11 +59,12 @@
     
     NSURL *requestURL = [NSURL URLWithString:NSLocalizedString(@"Blog", nil)];
     NSURLRequest *request = [NSURLRequest requestWithURL:requestURL];
-    AFXMLRequestOperation *operation = [AFXMLRequestOperation XMLParserRequestOperationWithRequest: request
-                                                                                           success:^(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLParser *XMLParser) {
-                                                                                               XMLParser.delegate = self;
-                                                                                               [XMLParser parse];
-                                                                                           } failure:nil];
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    operation.responseSerializer = [AFXMLParserResponseSerializer serializer];
+    operation.responseSerializer.acceptableContentTypes = [NSSet setWithArray:@[@"application/xml", @"text/xml"]];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"Operation: %@, Response: %@", operation, responseObject);
+    } failure:nil];
     
     NSOperationQueue *queue = [[NSOperationQueue alloc]init];
     [queue addOperation:operation];
@@ -74,7 +75,7 @@
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[table]|"
                                                                       options:kNilOptions metrics:nil
                                                                         views:viewDict]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[table]|"
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[table]-|"
                                                                       options:kNilOptions metrics:nil
                                                                         views:viewDict]];
 }
@@ -134,11 +135,8 @@
 }
 
 - (void)receivedItems:(NSArray *)theItems {
-    NSSortDescriptor *sortDescriptor;
-    sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
-    
-    items = [theItems sortedArrayUsingDescriptors:sortDescriptors];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+    items = [theItems sortedArrayUsingDescriptors:@[sortDescriptor]];
     [self.table reloadData];
 }
 

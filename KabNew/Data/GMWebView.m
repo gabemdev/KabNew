@@ -56,7 +56,7 @@
 }
 
 - (void)layoutSubviews {
-    _webView.frame = CGRectMake(0.0f, 0.0f, [[UIScreen mainScreen] bounds].size.width, [[UIScreen mainScreen] bounds].size.height);
+    _webView.frame = CGRectMake(0.0f, 0.0f, [[UIScreen mainScreen] bounds].size.width, [[UIScreen mainScreen] bounds].size.height - 45);
 }
 
 #pragma mark - GMWebView Methods
@@ -77,9 +77,9 @@
 - (void)reset {
     BOOL loadPreviousSettings = NO;
     UIDataDetectorTypes tempDataDetectorTypes;
-    BOOL tempScalesPageToFit;
-    BOOL tempAllowsInlineMediaPlayback;
-    BOOL tempMediaPlaybackRequiresUserAction;
+    BOOL tempScalesPageToFit = false;
+    BOOL tempAllowsInlineMediaPlayback = false;
+    BOOL tempMediaPlaybackRequiresUserAction = false;
     
     if (_webView) {
         _webView.delegate = nil;
@@ -126,7 +126,7 @@
     }
     
     if ([string hasPrefix:@"http://"] == NO && [string hasPrefix:@"https://"] == NO) {
-        string = [NSString stringWithFormat:@"http://%@", string];
+        string = [NSString stringWithFormat:@"https://%@", string];
     }
     [self loadURL:[NSURL URLWithString:string]];
 }
@@ -265,7 +265,7 @@
     _lastRequest = nil;
     
     if (!baseURL) {
-        baseURL = [NSURL URLWithString:@"http://localhost/"];
+        baseURL = [NSURL URLWithString:@"https://localhost/"];
     }
     [_webView loadHTMLString:string baseURL:baseURL];
 }

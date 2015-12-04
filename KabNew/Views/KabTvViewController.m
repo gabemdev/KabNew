@@ -9,14 +9,21 @@
 #import "KabTvViewController.h"
 #import <MediaPlayer/MediaPlayer.h>
 #import "GMDWebViewController.h"
+#import <AVFoundation/AVFoundation.h>
+#import <AVKit/AVKit.h>
 
 @interface KabTvViewController () <UICollectionViewDelegateFlowLayout>
 @property (nonatomic) UIButton *englishButton, *hebrewButton, *russianButton, *spanishButton, *scheduleButton;
 @property (nonatomic) UIImageView *background;
 @property (nonatomic, strong) MPMoviePlayerController *mp;
+@property (nonatomic, strong) AVPlayerViewController *avP;
+@property (nonatomic) AVPlayer *player;
+@property (nonatomic) AVPlayerItem *playerItem;
 @property (nonatomic) NSArray *menu;
 
 @end
+
+static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerPlaybackViewControllerStatusObservationContext;
 
 @implementation KabTvViewController
 @synthesize collection = _collection;
@@ -52,21 +59,11 @@
 - (void)loadCollection {
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(share:)];
     self.navigationItem.rightBarButtonItem.tintColor = [UIColor whiteColor];
-    
-    self.menu = [[NSArray alloc] initWithObjects:
-                 @"ENGLISH",
-                 @"עברית",
-                 @"PYCCKий",
-                 @"ESPAÑOL",
-                 @"ITALIANO",
-                 @"SCHEDULE",nil];
+    self.menu = @[@"ENGLISH",@"עברית",@"PYCCKий",@"ESPAÑOL",@"ITALIANO",@"SCHEDULE"];
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.scrollDirection = UICollectionViewScrollDirectionVertical;
     
-    
-    
-
     [self.collection setCollectionViewLayout:layout];
     
     _collection = [[UICollectionView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, self.view.bounds.size.width, self.view.bounds.size.height - 60) collectionViewLayout:layout];
@@ -92,7 +89,12 @@
 
 #pragma mark - UiCollectionView
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    CGSize itemSize = CGSizeMake(185, 185);
+    CGFloat witdh = CGRectGetWidth([UIScreen mainScreen].bounds) / 2 - 3;
+    CGFloat height = CGRectGetHeight([UIScreen mainScreen].bounds) / 3 - 22.333333;
+    CGSize itemSize;
+    
+    itemSize = CGSizeMake(witdh, height);
+    
     return itemSize;
 }
 
@@ -106,14 +108,24 @@
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
     
-    CGFloat left = self.collection.frame.size.width / 2 - 155;
-    NSLog(@"%f", left);
+//    CGFloat left = self.collection.frame.size.width / 2 - 155;
     
 //    return UIEdgeInsetsMake(20, left, 15, left);
     return UIEdgeInsetsMake(1, 2, 1, 2);
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    [self updateCollectionViewLayoutWithSize:size];
+}
 
+- (void)updateCollectionViewLayoutWithSize:(CGSize)size {
+    CGFloat witdh = CGRectGetWidth([UIScreen mainScreen].bounds) / 2 - 3;
+    CGFloat height = CGRectGetHeight([UIScreen mainScreen].bounds) / 3 - 22.333333;
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collection.collectionViewLayout;
+    layout.itemSize = (size.width < size.height) ? CGSizeMake(witdh, height) : CGSizeMake(witdh, height);
+    [layout invalidateLayout];
+}
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     return 1;
@@ -127,20 +139,34 @@
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     cell.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.1];
     cell.layer.cornerRadius = 3;
+    
     UILabel *titleLabel = (UILabel *)[[UILabel alloc] init];
-    titleLabel.frame = CGRectMake(0.0f, cell.frame.size.height / 2 - 20, 185.0f, 42.0f);
+    titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+//    titleLabel.frame = CGRectMake(0.0f, cell.frame.size.height / 2 - 20, CGRectGetWidth(cell.frame), 42.0f);
     titleLabel.textColor = [UIColor kabBlueColor];
     titleLabel.shadowColor = [UIColor whiteColor];
     titleLabel.shadowOffset = CGSizeMake(0.0f, 1.0f);
     titleLabel.textAlignment = NSTextAlignmentCenter;
     titleLabel.font = [UIFont boldSystemFontOfSize:20.0f];
     [titleLabel setText:self.menu[indexPath.row]];
-    [cell addSubview:titleLabel];
+    [cell.contentView addSubview:titleLabel];
     
+    NSDictionary *views = NSDictionaryOfVariableBindings(titleLabel);
+    [cell.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[titleLabel]-|" options:kNilOptions metrics:nil views:views]];
+    [cell.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[titleLabel(==42)]" options:kNilOptions metrics:nil views:views]];
+    [cell.contentView addConstraint:[NSLayoutConstraint constraintWithItem:titleLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:cell.contentView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0.0]];
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+//    switch (indexPath.row) {
+//        case 0: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-eng-mobile.stream/playlist.m3u8"]]; break;
+//        case 1: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-heb-mobile.stream/playlist.m3u8"]]; break;
+//        case 2: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-rus-mobile.stream/playlist.m3u8"]]; break;
+//        case 3: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-spa-mobile.stream/playlist.m3u8"]]; break;
+//        case 5: [self loadWebView]; break;
+//        default: [self loadAlertWithTitle:@"Alert" andMessage:@"Language is still not supported"]; break;
+//    }
     
     switch (indexPath.row) {
         case 0: [self loadVideoPlayerplayURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-eng-mobile.stream/playlist.m3u8"]]]; break;
@@ -182,10 +208,17 @@
                                                object:[media moviePlayer]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayBackStateChange:) name:MPMoviePlayerPlaybackDidFinishNotification object:[media moviePlayer]];
-    
-    
-    
 }
+
+- (void)loadVideoWithURL:(NSURL *)url {
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+    self.avP= [[AVPlayerViewController alloc] init];
+    self.player = [[AVPlayer alloc] initWithURL:url];
+    self.avP.player = self.player;
+    [self presentViewController:self.avP animated:YES completion:nil];
+    [self.player play];
+}
+
 
 - (void)moviePlayBackStateChange:(NSNotification *)notification
 {
@@ -226,7 +259,26 @@
 
 #pragma mark - Sharing
 - (void)share:(id)sender {
-    
+    if ([UIActivityViewController class]) {
+        NSString *title = @"KabTV.";
+        NSURL *url = [NSURL URLWithString:@"http://www.kab.tv"];
+        NSArray *items = @[title, url];
+        
+        UIActivityViewController *shareController = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
+        shareController.excludedActivityTypes = @[UIActivityTypeAddToReadingList, UIActivityTypeCopyToPasteboard];
+        
+        UIActivityViewControllerCompletionWithItemsHandler completion = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+            if (completed) {
+                [self loadAlertWithTitle:@"Done" andMessage:nil];
+            } else if (activityError) {
+                [self loadAlertWithTitle:@"Error!" andMessage:activityError.localizedDescription];
+            }else {
+                NSLog(@"user canceled");
+            }
+        };
+        shareController.completionWithItemsHandler = completion;
+        [self presentViewController:shareController animated:YES completion:nil];
+    }
 }
 
 
