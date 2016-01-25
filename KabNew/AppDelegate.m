@@ -12,10 +12,12 @@
 #import "BlogDetailViewController.h"
 #import "KabTvViewController.h"
 #import "MediaViewController.h"
+#import "MediaCollectionViewController.h"
 #import "LoginViewController.h"
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
-
+#import <MediaPlayer/MediaPlayer.h>
+#import <Rollout/Rollout.h>
 
 @interface AppDelegate () <UISplitViewControllerDelegate>
 
@@ -31,6 +33,12 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     [Fabric with:@[CrashlyticsKit]];
+    
+#if defined( DEBUG )
+    [Rollout setupWithDebug:YES];
+#else
+    [Rollout setupWithDebug:NO];
+#endif
     
     _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     _window.backgroundColor = [UIColor whiteColor];
@@ -89,9 +97,31 @@
 {
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         return UIInterfaceOrientationMaskLandscape;
-    } else {
-        return UIInterfaceOrientationMaskPortrait;
     }
+    if ([[self.window.rootViewController presentedViewController]
+         isKindOfClass:[MPMoviePlayerViewController class]]) {
+        return UIInterfaceOrientationMaskAllButUpsideDown;
+    } else {
+        
+        if ([[self.window.rootViewController presentedViewController]
+             isKindOfClass:[UINavigationController class]]) {
+            
+            // look for it inside UINavigationController
+            UINavigationController *nc = (UINavigationController *)[self.window.rootViewController presentedViewController];
+            
+            // is at the top?
+            if ([nc.topViewController isKindOfClass:[MPMoviePlayerViewController class]]) {
+                return UIInterfaceOrientationMaskAllButUpsideDown;
+                
+                // or it's presented from the top?
+            } else if ([[nc.topViewController presentedViewController]
+                        isKindOfClass:[MPMoviePlayerViewController class]]) {
+                return UIInterfaceOrientationMaskAllButUpsideDown;
+            }
+        }
+    }
+    
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 #pragma mark - Appearance
@@ -101,7 +131,7 @@
     
     //Navigation Bar
     UINavigationBar *navigationBar = [UINavigationBar appearance];
-    [navigationBar setBarStyle:UIBarStyleBlack];
+    [navigationBar setTranslucent:NO];
     
     [navigationBar setBarTintColor:[UIColor kabBlueColor]];
     [navigationBar setTintColor: [UIColor whiteColor]];
@@ -111,7 +141,7 @@
     [shadow setShadowColor:[UIColor colorWithWhite:0.0f alpha:0.2f]];
     [shadow setShadowOffset:CGSizeMake(0.0f, 1.0f)];
     
-    [navigationBar setTitleTextAttributes:@{NSFontAttributeName: [UIFont boldSystemFontOfSize:20.0f],
+    [navigationBar setTitleTextAttributes:@{NSFontAttributeName: [UIFont boldKabInterfaceFontOfSize:20.0f],
                                             NSShadowAttributeName: shadow,
                                             NSForegroundColorAttributeName: [UIColor whiteColor]
                                             }];
@@ -136,7 +166,7 @@
     [tabBarItem setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor lightGrayColor]}
                               forState:UIControlStateNormal];
     
-//    [tabBarItem setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} forState:UIControlStateSelected];
+    //    [tabBarItem setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} forState:UIControlStateSelected];
 }
 
 #pragma mark - TabBar
@@ -171,7 +201,7 @@
     [kabTv.tabBarItem setSelectedImage:[[UIImage imageNamed:@"107-widescreen"] imageWithRenderingMode:UIImageRenderingModeAutomatic]];
     [kabTv.tabBarItem setImageInsets:insets];
     
-    MediaViewController *media = [[MediaViewController alloc] init];
+    MediaCollectionViewController *media = [[MediaCollectionViewController alloc] init];
     UINavigationController *mediaNav = [[UINavigationController alloc] initWithRootViewController:media];
     [mediaNav.navigationBar setTranslucent:NO];
     [media.tabBarItem setImage:[[UIImage imageNamed:@"56-cloud"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]];
