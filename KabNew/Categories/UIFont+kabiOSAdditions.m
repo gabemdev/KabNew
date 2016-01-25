@@ -8,13 +8,13 @@
 
 #import "UIFont+kabiOSAdditions.h"
 
-NSString *const kBBFontRegularKey = @"Regular";
-NSString *const kBBFontItalicKey = @"Italic";
-NSString *const kBBFontBoldKey = @"Bold";
-NSString *const kBBFontBoldItalicKey = @"BoldItalic";
-NSString *const kCDIFontHelveticaNeueKey = @"HelveticaNeue";
-NSString *const kBBRegularFontName = @"HelveticaNeue";
-NSString *const kBBBoldFontName = @"HelveticaNeue-Bold";
+NSString *const kBBFontRegularKey = @"Book";
+NSString *const kBBFontItalicKey = @"Oblique";
+NSString *const kBBFontBoldKey = @"Heavy";
+NSString *const kBBFontBoldItalicKey = @"HeavyOblique";
+NSString *const kCDIFontHelveticaNeueKey = @"Avenir";
+NSString *const kBBRegularFontName = @"Avenir-Book";
+NSString *const kBBBoldFontName = @"Avenir-Heavy";
 
 @implementation UIFont (kabiOSAdditions)
 
@@ -25,10 +25,10 @@ NSString *const kBBBoldFontName = @"HelveticaNeue-Bold";
     dispatch_once(&onceToken, ^{
         fontDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
                           [[NSDictionary alloc] initWithObjectsAndKeys:
-                           @"HelveticaNeue", kBBFontRegularKey,
-                           @"HelveticaNeue-Italic", kBBFontItalicKey,
-                           @"HelveticaNeue-Bold", kBBFontBoldKey,
-                           @"HelveticaNeue-BoldItalic", kBBFontBoldItalicKey,
+                           @"Avenir-Book", kBBFontRegularKey,
+                           @"Avenir-BookOblique", kBBFontItalicKey,
+                           @"Avenir-Heavy", kBBFontBoldKey,
+                           @"Avenir-HeavyOblique", kBBFontBoldItalicKey,
                            nil], kCDIFontHelveticaNeueKey,
                           nil];
     });
