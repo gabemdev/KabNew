@@ -7,9 +7,15 @@
 //
 
 #import "MediaViewController.h"
+#import "DocumentRoot.h"
+#import "Element.h"
+#import "GMHudView.h"
+#import "CustomCell.h"
+#import "UIImageView+AFNetworking.h"
+#import "ArchiveViewController.h"
 
 @interface MediaViewController ()
-@property (nonatomic) NSArray *items;
+@property (nonatomic, retain) NSArray *itemsArray;
 @property (nonatomic) UIImageView *avatarImageView;
 @property (nonatomic) UILabel *upgradeLabel;
 
@@ -22,7 +28,7 @@
 - (instancetype)init {
     if ((self = [super init])) {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-//        [self.view addSubview:self.avatarImageView];
+        //        [self.view addSubview:self.avatarImageView];
     }
     return self;
 }
@@ -68,14 +74,15 @@
     [self.navigationItem setTitle:[NSString stringWithFormat:@"Kabbalah Media"]];
     [self loadTableView];
     
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc]
+                                   initWithTitle:@" "
+                                   style:UIBarButtonItemStylePlain
+                                   target:nil
+                                   action:nil];
+    self.navigationItem.backBarButtonItem=backButton;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    [self loadData];
     [super viewDidAppear:animated];
 }
 
@@ -83,6 +90,11 @@
     [super viewWillDisappear:animated];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.navigationController.navigationBar setHidden:NO];
+    [self itemsArray];
+}
 
 #pragma mark - UITableView
 - (void)loadTableView {
@@ -177,24 +189,24 @@
         if (indexPath.row == 0) {
             cell.textLabel.text = @"Courses";
             cell.textLabel.textColor = [UIColor kabOrangeColor];
-//            cell.imageView.image = [UIImage imageNamed:@"more-icon-terms"];
+            //            cell.imageView.image = [UIImage imageNamed:@"more-icon-terms"];
             cell.detailTextLabel.text = nil;
         } else if (indexPath.row == 1) {
             cell.textLabel.text = @"Events";
             cell.textLabel.textColor = [UIColor kabOrangeColor];
-//            cell.imageView.image = [UIImage imageNamed:@"more-icon-privacy"];
+            //            cell.imageView.image = [UIImage imageNamed:@"more-icon-privacy"];
             cell.detailTextLabel.text = nil;
         } else if (indexPath.row == 2) {
             cell.textLabel.text = @"Donations";
             cell.textLabel.textColor = [UIColor kabOrangeColor];
-//            cell.imageView.image = [UIImage imageNamed:@"more-icon-help"];
+            //            cell.imageView.image = [UIImage imageNamed:@"more-icon-help"];
             cell.detailTextLabel.text = nil;
         }
     }
     else if (indexPath.section == 3) {
         cell.textLabel.text = @"Self-Study";
         cell.textLabel.textColor = [UIColor kabSteelColor];
-//        cell.imageView.image = [UIImage imageNamed:@"more-icon-signout"];
+        //        cell.imageView.image = [UIImage imageNamed:@"more-icon-signout"];
         cell.detailTextLabel.text = nil;
     }
     return cell;
@@ -216,39 +228,6 @@
     }
 }
 
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-//    UILabel *title = [[UILabel alloc] initWithFrame:CGRectZero];
-//    title.backgroundColor = [UIColor clearColor];
-//    title.textAlignment = NSTextAlignmentLeft;
-//    title.font = [UIFont boldKabInterfaceFontOfSize:15.0f];
-//    title.textColor = [UIColor kabDarkTextColor];
-//    
-//    switch (section) {
-//        case 0:
-//            title.text = @"Kabbalah";
-//            break;
-//        case 1:
-//            title.text = @"Books";
-//            break;
-//        case 2:
-//            title.text = @"About";
-//            break;
-//        case 3:
-//            title.text = @"Self-learning";
-//            break;
-//            
-//        default:
-//            nil;
-//            break;
-//    }
-//    
-//    return title;
-//}
-
-//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-//    return 44;
-//}
-
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if (section == 0) {
         return @"Kabbalah";
@@ -267,12 +246,11 @@
     return 44;
 }
 
-#pragma mark - Data
-- (void)loadData {
-    
-}
-
-+ (UIColor *)darkTextColor {
-    return [UIColor colorWithRed:0.949f green:0.510f blue:0.380f alpha:1.0f];
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        ArchiveViewController *vc = [[ArchiveViewController alloc] init];
+        [self.navigationController pushViewController:vc animated:YES];
+        [_table deselectRowAtIndexPath:[_table indexPathForSelectedRow] animated:YES];
+    }
 }
 @end
