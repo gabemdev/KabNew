@@ -12,27 +12,48 @@
 #import "FeedAPI.h"
 #import "FeedModel.h"
 #import <AFNetworking/UIImageView+AFNetworking.h>
+#import "GMHUDView.h"
+#import "BBEmptyDataSetSource.h"
+#import "BBLoadingErrorEmptyDataSetSource.h"
 
-@interface KabbalahViewController ()<UITableViewDataSource, UITableViewDelegate>
+@interface KabbalahViewController ()<UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetDelegate> {
+    FeedAPI *_feedAPI;
+    NSArray *_channelItems;
+    id<DZNEmptyDataSetSource> _emptyDataSetSource;
+}
 @property (nonatomic) UITableView *table;
-@property (nonatomic) NSMutableArray *feedArray;
+//@property (nonatomic) NSMutableArray *feedArray;
 
 @end
 
 @implementation KabbalahViewController
 
-- (instancetype) init {
-    if ((self = [super init])) {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+static NSString *const reuseIdentifier = @"Cell";
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self commonInit];
     }
     return self;
 }
 
+- (void)commonInit {
+    _feedAPI = [FeedAPI api];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     [self.navigationItem setTitle:[NSString stringWithFormat:@"Kabbalah"]];
-    self.feedArray = [NSMutableArray new];
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc]
+                                   initWithTitle:@" "
+                                   style:UIBarButtonItemStylePlain
+                                   target:nil
+                                   action:nil];
+    self.navigationItem.backBarButtonItem=backButton;
     [self setTableView];
     [self checkInternet];
     [self loadFeed];
@@ -42,22 +63,19 @@
     _table = [[UITableView alloc] init];
     _table.translatesAutoresizingMaskIntoConstraints = NO;
     _table.backgroundColor = [UIColor lightTextColor];
+    _table.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
     _table.delegate = self;
     _table.dataSource = self;
+    _table.emptyDataSetDelegate = self;
+    _table.tableFooterView = [UIView new];
     [_table registerClass:[CustomCell class] forCellReuseIdentifier:@"Cell"];
     _table.scrollEnabled = YES;
-    [_table reloadData];
     [self.view addSubview:_table];
+    [_table reloadData];
     
-    NSDictionary *viewDict = @{@"table": _table};
-    
-    //    NSDictionary *views = NSDictionaryOfVariableBindings(_table)
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[table]|"
-                                                                      options:kNilOptions metrics:nil
-                                                                        views:viewDict]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[table]|"
-                                                                      options:kNilOptions metrics:nil
-                                                                        views:viewDict]];
+    NSDictionary *views = NSDictionaryOfVariableBindings(_table);
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_table]|" options:kNilOptions metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_table]|" options:kNilOptions metrics:nil views:views]];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -78,7 +96,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.feedArray count];
+    return [_channelItems count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -87,41 +105,60 @@
     if (!cell) {
         cell = [[CustomCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
     }
-//    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    //    FeedModel *model = [self.feedArray objectAtIndex:indexPath.row];
+    FeedModel *model = _channelItems[indexPath.row];
     cell.backgroundColor = [UIColor lightTextColor];
-    
-//    KabChannelSchema *channel = (self.list)[indexPath.row];
-    FeedModel *model = [self.feedArray objectAtIndex:indexPath.row];
     [cell.titleLabel setText:model.title];
     [cell.subtitleLabel setText:model.detail];
-    [cell.cellImageView setImageWithURL:model.cellImageURL placeholderImage:[UIImage imageNamed:@"placeholder"]];
-    cell.separatorInset = UIEdgeInsetsMake(0.0, 90.0, 0.0, 0.0);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [cell.cellImageView setImageWithURL:model.cellImageURL placeholderImage:[UIImage imageNamed:@"placeholder"]];
+    });
+    cell.separatorInset = UIEdgeInsetsMake(0.0, 100, 0.0, 0.0);
     
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        return 120;
-    }
-    return 90;
+    
+    return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 120 : 100;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 90;
+    return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 120 : 100;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSIndexPath *index = [_table indexPathForSelectedRow];
-    FeedModel *selected = self.feedArray[indexPath.row];
+    FeedModel *selected = _channelItems[indexPath.row];
     KabbalahDetailViewController *detail = [[KabbalahDetailViewController alloc] init];
     [detail setDetailItem:selected];
-//    detail.selected = selected;
-    self.navigationController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-//    [self.navigationController setViewControllers:@[detail]];
     [detail setHidesBottomBarWhenPushed:YES];
+    //    self.navigationController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     [self.navigationController pushViewController:detail animated:YES];
     [_table deselectRowAtIndexPath:index animated:YES];
+}
+
+#pragma mark - DZNEmptyDataSetSource methods -
+- (UIColor*) backgroundColorForEmptyDataSet:(UIScrollView*)scrollView
+{
+    return [UIColor whiteColor];
+}
+
+- (CGPoint) offsetForEmptyDataSet:(UIScrollView *)scrollView
+{
+    return CGPointMake(-scrollView.contentInset.left / 2.0f, 0);
+}
+
+#pragma mark - DZNEmptyDataSet delegate methods -
+
+- (BOOL) emptyDataSetShouldShow:(UIScrollView *)scrollView
+{
+    return ![self.table numberOfRowsInSection:0];
+}
+
+- (BOOL) emptyDataSetShouldAllowTouch:(UIScrollView *)scrollView
+{
+    return NO;
 }
 
 #pragma mark - Helper Methods
@@ -130,18 +167,12 @@
     _internetReach = [Reachability reachabilityForInternetConnection];
     [_internetReach startNotifier];
     NetworkStatus netStatus = [_internetReach currentReachabilityStatus];
-    switch (netStatus)
-    {
+    switch (netStatus) {
         case ReachableViaWWAN:
-        {
+        case ReachableViaWiFi: {
             break;
         }
-        case ReachableViaWiFi:
-        {
-            break;
-        }
-        case NotReachable:
-        {
+        case NotReachable: {
             [self showAlertWithTitle:@"Alert" andMessage:@"No internet connection detected. Some functionality will be limited until a connection is made."];
             break;
         }
@@ -149,25 +180,27 @@
 }
 
 - (void)loadFeed {
-    [[FeedAPI sharedInstance] requestFeedWithUrl:@"http://m.kab.tv/ios/bbtv/bb-static.json" withCompletion:^(BOOL success, NSData *response, NSError *error) {
-        if (!error) {
-            NSArray *dictArray = (NSArray *)response;
-            for (NSDictionary *dict in dictArray) {
-                FeedModel *model = [[FeedModel alloc] initWithDictionary:dict];
-                if (![self.feedArray containsObject:model]) {
-                    [self.feedArray addObject:model];
-                }
-            }
-            [self sortFeed:self.feedArray];
+    GMHudView *hud = [[GMHudView alloc] initWithTitle:@"Loading..." loading:YES];
+    [hud show];
+    [[FeedAPI api] getChannelWithCompletion:^(NSArray<FeedModel *> *channel, NSError *error) {
+        _channelItems = channel;
+        if (channel.count == 0) {
+            _emptyDataSetSource = [BBEmptyDataSetSource emptyDataSetSourceWithTitle:@"No Channel Items" description:@"Sorry, we couldn't find what you're looking for. Please try again later."];
+        } else if (error != nil) {
+            _emptyDataSetSource = [BBLoadingErrorEmptyDataSetSource new];
+            [self showAlertWithTitle:@"Loading Error." andMessage:error.localizedDescription];
         } else {
-            [self showAlertWithTitle:@"Alert" andMessage:error.localizedDescription];
+            _emptyDataSetSource = nil;
         }
+        _table.emptyDataSetSource = _emptyDataSetSource;
+        [self sortFeed:_channelItems];
+        [hud completeAndDismissWithTitle:@"Loaded"];
     }];
 }
 
 - (void)sortFeed:(NSArray *)sorted {
     NSSortDescriptor *descriptor = [[NSSortDescriptor alloc] initWithKey:@"title" ascending:YES];
-    self.feedArray = [sorted sortedArrayUsingDescriptors:@[descriptor]].mutableCopy;
+    _channelItems = [sorted sortedArrayUsingDescriptors:@[descriptor]].mutableCopy;
     [self.table reloadData];
 }
 

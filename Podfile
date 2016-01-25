@@ -1,14 +1,18 @@
 platform :ios, '8.0'
 source 'https://github.com/CocoaPods/Specs.git'
 
-target 'KabNew' do
-# AFNetworking
-pod "AFNetworking", "2.5.4"
+def new_pods
+    pod "AFNetworking", "~> 2.0"
+    pod 'Reachability', '~> 3.2'
+    pod 'DZNEmptyDataSet'
+    pod 'XMLDictionary', '1.4'
+    pod 'Rollout.io', '~> 0.13.0'
+end
 
-# Reachability
-pod 'Reachability', '~> 3.2'
+target 'KabNew' do
+    new_pods
 end
 
 target 'KabNewTests' do
-
+    
 end

@@ -17,8 +17,8 @@
 @property (nonatomic) UIImageView *background;
 @property (nonatomic, strong) MPMoviePlayerController *mp;
 @property (nonatomic, strong) AVPlayerViewController *avP;
-@property (nonatomic) AVPlayer *player;
-@property (nonatomic) AVPlayerItem *playerItem;
+//@property (nonatomic) AVPlayer *player;
+//@property (nonatomic) AVPlayerItem *playerItem;
 @property (nonatomic) NSArray *menu;
 
 @end
@@ -27,6 +27,11 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
 
 @implementation KabTvViewController
 @synthesize collection = _collection;
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    self.preferredContentSize = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? CGSizeMake(320.0, 600.0) : CGSizeMake(CGRectGetWidth(self.collection.bounds), CGRectGetHeight(self.collection.bounds) /3);
+}
 
 
 - (instancetype)init {
@@ -39,6 +44,12 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self.navigationItem setTitle:[NSString stringWithFormat:@"KabTV"]];
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc]
+                                   initWithTitle:@" "
+                                   style:UIBarButtonItemStylePlain
+                                   target:nil
+                                   action:nil];
+    self.navigationItem.backBarButtonItem=backButton;
     
     [self loadCollection];
     
@@ -46,7 +57,7 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -62,17 +73,18 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
     self.menu = @[@"ENGLISH",@"עברית",@"PYCCKий",@"ESPAÑOL",@"ITALIANO",@"SCHEDULE"];
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    layout.scrollDirection = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? UICollectionViewScrollDirectionVertical : UICollectionViewScrollDirectionVertical;
     
     [self.collection setCollectionViewLayout:layout];
     
-    _collection = [[UICollectionView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, self.view.bounds.size.width, self.view.bounds.size.height - 60) collectionViewLayout:layout];
+    _collection = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
     _collection.backgroundColor = [UIColor kabStaticColor];
     _collection.delegate = self;
     _collection.dataSource = self;
     _collection.translatesAutoresizingMaskIntoConstraints = NO;
     [_collection registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"Cell"];
     _collection.pagingEnabled = YES;
+    _collection.scrollEnabled = NO;
     [_collection reloadData];
     
     [self.view addSubview:_collection];
@@ -81,7 +93,7 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[collection]|"
                                                                       options:kNilOptions metrics:nil
                                                                         views:viewDict]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[collection]|"
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[collection]-50-|"
                                                                       options:kNilOptions metrics:nil
                                                                         views:viewDict]];
 }
@@ -89,13 +101,12 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
 
 #pragma mark - UiCollectionView
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    CGFloat witdh = CGRectGetWidth([UIScreen mainScreen].bounds) / 2 - 3;
-    CGFloat height = CGRectGetHeight([UIScreen mainScreen].bounds) / 3 - 22.333333;
-    CGSize itemSize;
+    CGFloat witdh = CGRectGetWidth(self.collection.bounds) / 2 - 2;
+    CGFloat height = CGRectGetHeight(self.collection.bounds) / 3 - 22.333333;
+    CGSize itemSize = CGSizeMake(witdh, height);
+    CGSize deviceSize = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? itemSize : CGSizeMake(CGRectGetWidth(self.collection.bounds)/2 -2, CGRectGetHeight(self.collection.bounds)/3);
     
-    itemSize = CGSizeMake(witdh, height);
-    
-    return itemSize;
+    return deviceSize;
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
@@ -108,10 +119,7 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
     
-//    CGFloat left = self.collection.frame.size.width / 2 - 155;
-    
-//    return UIEdgeInsetsMake(20, left, 15, left);
-    return UIEdgeInsetsMake(1, 2, 1, 2);
+    return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? UIEdgeInsetsMake(1, 1, 1, 1) : UIEdgeInsetsMake(1, 2, 1, 1);
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
@@ -142,13 +150,13 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
     
     UILabel *titleLabel = (UILabel *)[[UILabel alloc] init];
     titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-//    titleLabel.frame = CGRectMake(0.0f, cell.frame.size.height / 2 - 20, CGRectGetWidth(cell.frame), 42.0f);
+    //    titleLabel.frame = CGRectMake(0.0f, cell.frame.size.height / 2 - 20, CGRectGetWidth(cell.frame), 42.0f);
     titleLabel.textColor = [UIColor kabBlueColor];
     titleLabel.shadowColor = [UIColor whiteColor];
     titleLabel.shadowOffset = CGSizeMake(0.0f, 1.0f);
     titleLabel.textAlignment = NSTextAlignmentCenter;
     titleLabel.font = [UIFont boldSystemFontOfSize:20.0f];
-    [titleLabel setText:self.menu[indexPath.row]];
+    titleLabel.text = [self.menu[indexPath.row] uppercaseString];
     [cell.contentView addSubview:titleLabel];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(titleLabel);
@@ -159,14 +167,14 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-//    switch (indexPath.row) {
-//        case 0: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-eng-mobile.stream/playlist.m3u8"]]; break;
-//        case 1: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-heb-mobile.stream/playlist.m3u8"]]; break;
-//        case 2: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-rus-mobile.stream/playlist.m3u8"]]; break;
-//        case 3: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-spa-mobile.stream/playlist.m3u8"]]; break;
-//        case 5: [self loadWebView]; break;
-//        default: [self loadAlertWithTitle:@"Alert" andMessage:@"Language is still not supported"]; break;
-//    }
+    //    switch (indexPath.row) {
+    //        case 0: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-eng-mobile.stream/playlist.m3u8"]]; break;
+    //        case 1: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-heb-mobile.stream/playlist.m3u8"]]; break;
+    //        case 2: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-rus-mobile.stream/playlist.m3u8"]]; break;
+    //        case 3: [self loadVideoWithURL:[NSURL URLWithString:@"http://edge1.nl.kab.tv/rtplive/live1-spa-mobile.stream/playlist.m3u8"]]; break;
+    //        case 5: [self loadWebView]; break;
+    //        default: [self loadAlertWithTitle:@"Alert" andMessage:@"Language is still not supported"]; break;
+    //    }
     
     switch (indexPath.row) {
         case 0: [self loadVideoPlayerplayURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://edge1.nl.kab.tv/rtplive/live1-eng-mobile.stream/playlist.m3u8"]]]; break;
@@ -180,7 +188,7 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
 
 - (void)loadWebView {
     GMDWebViewController *viewController = [[GMDWebViewController alloc] init];
-    [viewController loadURL:[NSURL URLWithString:@"http://m.kab.tv/ios/Schedule.html"]];
+    [viewController loadURL:[NSURL URLWithString:@"http://kab.tv/tvlist_gen.php?lang=English"]];
     [viewController.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
     [self.tabBarController.tabBar setHidden:YES];
     [self.navigationController pushViewController:viewController animated:YES];
@@ -210,14 +218,27 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayBackStateChange:) name:MPMoviePlayerPlaybackDidFinishNotification object:[media moviePlayer]];
 }
 
-- (void)loadVideoWithURL:(NSURL *)url {
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
-    self.avP= [[AVPlayerViewController alloc] init];
-    self.player = [[AVPlayer alloc] initWithURL:url];
-    self.avP.player = self.player;
-    [self presentViewController:self.avP animated:YES completion:nil];
-    [self.player play];
-}
+//- (void)loadVideoWithURL:(NSURL *)url {
+//    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+//    self.avP= [[AVPlayerViewController alloc] init];
+//    self.player = [[AVPlayer alloc] initWithURL:url];
+//    self.avP.player = self.player;
+//    [self presentViewController:self.avP animated:YES completion:nil];
+//    [self.player play];
+//}
+//
+//- (void)playerPlayBackStateChange:(NSNotification *)notification {
+//    AVPlayer *player = notification.object;
+//    switch (player.status) {
+//        case AVPlayerStatusUnknown:
+//            NSLog(@"Unknown");
+//            break;
+//        case AVPlayerStatusFailed: [self loadAlertWithTitle:@"Alert" andMessage:player.error.localizedDescription];
+//            break;
+//        default:
+//            break;
+//    }
+//}
 
 
 - (void)moviePlayBackStateChange:(NSNotification *)notification
@@ -246,7 +267,7 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
     NSError *mpError = [notificationUserInfo objectForKey:@"error"];
     switch (reason) {
         case MPMovieFinishReasonPlaybackEnded: NSLog(@"Ended"); break;
-        case MPMovieFinishReasonPlaybackError: NSLog(@"Error:"); [self loadAlertWithTitle:@"Alert" andMessage:mpError.localizedDescription]; break;
+        case MPMovieFinishReasonPlaybackError: NSLog(@"Error: %@", mpError.localizedDescription); [self loadAlertWithTitle:@"Alert" andMessage:@"Lesson is not available at this time. Please try again."]; break;
         case MPMovieFinishReasonUserExited: NSLog(@"User exited"); break;
         default: break;
     }
@@ -281,5 +302,13 @@ static void *AVPlayerPlaybackViewControllerStatusObservationContext = &AVPlayerP
     }
 }
 
+- (BOOL)shouldAutorotate
+{
+    return YES;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+}
 
 @end

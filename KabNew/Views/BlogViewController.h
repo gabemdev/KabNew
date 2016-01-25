@@ -10,6 +10,6 @@
 
 @interface BlogViewController : UIViewController 
 
-
+@property (nonatomic) Reachability *internetReach;
 
 @end

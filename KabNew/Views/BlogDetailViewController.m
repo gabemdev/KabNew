@@ -63,8 +63,13 @@ typedef enum ScrollDirection {
     _webView.scrollView.delegate = self;
     
     
-    NSString *title = [NSString stringWithFormat:@"<b>%@</b>", item[@"title"]];
-    NSString *post = [NSString stringWithFormat:@"<p>%@</p>", item[@"summary"]];
+    NSString *title = [NSString stringWithFormat:@"<b>%@</b>", item.title];
+    NSString *post;
+    if (item.summary) {
+        post = [NSString stringWithFormat:@"<p>%@</p>", item.summary];
+    } else if (item.content) {
+        post = [NSString stringWithFormat:@"<p>%@</p>", item.content];
+    }
     
     NSString *structure =[NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\"href=\"style.css\" ></style></head><body><section id='container'><section id='Blog'>"];
     NSString *close =[NSString stringWithFormat:@"</section><footer id='mainFooter'><div id='mainFooterWrapper'><!--                Widgets Section--><section id='widgetsFooter'><!--                    Footer Widgets--><div class='widgetFooter'><h4>contact us</h4><p>Questions or comments? Please contact us at: <a mailto:'info@kabbalah.info'>info@kabbalah.info</a>.</p></div></section></div></footer></section></body></html>"];
@@ -157,12 +162,12 @@ typedef enum ScrollDirection {
 }
 
 - (void)openSafari:(id)sender {
-    [[UIApplication sharedApplication] openURL:item[@"feedburner:origLink"]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:item.feedBurnerURL]];
 }
 
 - (void)openActionSheet:(id)sender {
     if ([UIActivityViewController class]) {
-        NSString *url = item[@"link"];
+        NSString *url = item.link;
         NSArray *items = @[self, [NSURL URLWithString:[NSString stringWithFormat:@"%@", url]]];
         UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:items
                                                                                              applicationActivities:nil];
@@ -188,16 +193,20 @@ typedef enum ScrollDirection {
 }
 
 - (id) activityViewController:(UIActivityViewController *)activityViewController itemForActivityType:(NSString *)activityType {
-    NSString *string = [NSString stringWithFormat:@"Check out %@. Via %@", item[@"title"], @"@KabbalahApp"];
+    NSString *string = [NSString stringWithFormat:@"Check out %@. Via %@", item.title, @"@KabbalahApp"];
     
     if ([activityType isEqualToString:UIActivityTypeMail]) {
         NSMutableString *body = [NSMutableString string];
         [body appendString:@"<html><body><h2>"];
-        [body appendString:item[@"title"]];
+        [body appendString:item.title];
         [body appendString:@"</h2><p>"];
-        [body appendString:item[@"summary"]];
+        if (item.summary) {
+            [body appendString:item.summary];
+        } else if (item.content) {
+            [body appendString:item.content];
+        }
         [body appendString:@"</p><a href=\""];
-        [body appendString:item[@"link"]];
+        [body appendString:item.link];
         [body appendString:@"\"> Link</a>\n<p>Follow us on <a href=\"http://www.twitter.com/KabbalahApp\">Twitter</a></br>"];
         [body appendString:@"Like us on <a href=\"https://www.facebook.com/KabbalahApp\">Facebook</a></br></p></body></html>"];
         return body;
@@ -213,11 +222,11 @@ typedef enum ScrollDirection {
 }
 
 - (id) activityViewController:(UIActivityViewController *)activityViewController dataTypeIdentifierForActivityType:(NSString *)activityType {
-    NSURL *url = [NSURL URLWithString:item[@"feedburner:origLink"]];
+    NSURL *url = [NSURL URLWithString:item.feedBurnerURL];
     NSData *data = [NSData dataWithContentsOfURL:url];
     
     if ([activityType isEqualToString:UIActivityTypePostToTwitter] || [activityType isEqualToString:UIActivityTypePostToFacebook]) {
-        return [NSData dataWithContentsOfURL:[NSURL URLWithString:item[@"feedburner:origLink"]]];
+        return [NSData dataWithContentsOfURL:[NSURL URLWithString:item.feedBurnerURL]];
     }
     return data;
 }
@@ -235,16 +244,16 @@ typedef enum ScrollDirection {
     MFMailComposeViewController *viewController = [[MFMailComposeViewController alloc] init];
     viewController.mailComposeDelegate = self;
     [viewController setToRecipients:@[@""]];
-    [viewController setSubject:item[@"title"]];
+    [viewController setSubject:item.title];
     [viewController.navigationBar setTintColor:[UIColor whiteColor]];
     NSMutableString *body = [NSMutableString string];
     [viewController setMessageBody:body isHTML:YES];
     [body appendString:@"<h2>"];
-    [body appendString:item[@"title"]];
+    [body appendString:item.title];
     [body appendString:@"</h2><p>"];
-    [body appendString:item[@"summary"]];
+    [body appendString:item.title];
     [body appendString:@"</p><a href=\""];
-    [body appendString:item[@"link"]];
+    [body appendString:item.link];
     [body appendString:@"\"> Link</a>\n<p>Follow us on <a href=\"http://www.twitter.com/KabbalahApp\">Twitter</a></br>"];
     [body appendString:@"Like us on <a href=\"https://www.facebook.com/KabbalahApp\">Facebook</a></br></p>"];
     [viewController setModalTransitionStyle:UIModalTransitionStyleCoverVertical];
@@ -280,16 +289,16 @@ typedef enum ScrollDirection {
 
 #pragma mark - GMWebViewdelegate
 - (void)webViewDidStartLoadingPage:(GMWebView *)aWebView {
-
+    
     [self _updateBrowserUI];
     
-//    [self.navigationController setToolbarHidden:[url isFileURL] animated:YES];
+    //    [self.navigationController setToolbarHidden:[url isFileURL] animated:YES];
 }
 
 - (void)webViewDidLoadDOM:(GMWebView *)aWebView {
     NSString *title = [_webView stringByEvaluatingJavaScriptFromString:@"document.title"];
     if (title && title.length > 0) {
-            [self.navigationItem setTitle:[NSString stringWithFormat:@"Detail"]];
+        [self.navigationItem setTitle:[NSString stringWithFormat:@"Detail"]];
     }
 }
 
@@ -338,10 +347,10 @@ typedef enum ScrollDirection {
 #pragma mark - Scroll
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-//    CGFloat yOffset = scrollView.contentOffset.y;
-//    if (yOffset > 100) {
-//    } else {
-//    }
+    //    CGFloat yOffset = scrollView.contentOffset.y;
+    //    if (yOffset > 100) {
+    //    } else {
+    //    }
     
     ScrollDirection scrollDirection;
     if (self.lastContentOffset > scrollView.contentOffset.y || scrollView.contentOffset.y <= 0) {

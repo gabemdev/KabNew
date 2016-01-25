@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "GMWebView.h"
 #import <MessageUI/MessageUI.h>
+#import "Book.h"
 
-@interface GMDWebViewController : UIViewController<GMWebViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
+@interface GMDWebViewController : UIViewController<GMWebViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, UINavigationControllerDelegate>
 
 @property (nonatomic, strong) GMWebView *webView;
 
@@ -22,5 +23,8 @@
 - (void)openActionSheet:(id)sender;
 - (void)copyURL:(id)sender;
 - (void)emailURL:(id)sender;
+
+//Book Download
+@property (nonatomic) Book *bookSelected;
 
 @end

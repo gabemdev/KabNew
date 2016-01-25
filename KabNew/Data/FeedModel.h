@@ -10,8 +10,6 @@
 
 @interface FeedModel : NSObject
 
-+ (FeedModel *)sharedInstance;
-
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *detail;
 @property (nonatomic, copy) NSString *detailDescription;
@@ -21,7 +19,9 @@
 @property (nonatomic, copy) NSURL *backgroundURL;
 @property (nonatomic, copy) NSURL *detailBackgroundURL;
 @property (nonatomic, copy) NSURL *videoURL;
+@property (nonatomic, strong) NSArray *videos;
 
-- (instancetype)initWithDictionary:(NSDictionary *)dict;
+//- (instancetype)initWithDictionary:(NSDictionary *)dict;
++ (instancetype)feedWithDictionary:(NSDictionary *)dict;
 
 @end

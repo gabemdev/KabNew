@@ -11,13 +11,15 @@
 #import "UIFont+kabiOSAdditions.h"
 #import "UIButton+kabiOSAdditions.h"
 #import <AFNetworking/UIImageView+AFNetworking.h>
+#import "KabbalahTVDetailViewController.h"
 
-@interface KabbalahDetailViewController ()
+@interface KabbalahDetailViewController () <UITextViewDelegate>
 @property (nonatomic) UIScrollView *scrollView;
 @property (nonatomic) UIImageView *mainTitle;
 @property (nonatomic) UIImageView *textBackground;
 @property (nonatomic) UITextView *detailText;
 @property (nonatomic) UIButton *viewButton;
+@property (nonatomic) NSLayoutConstraint *detailTextHeightConstraint;
 
 @end
 
@@ -44,8 +46,6 @@
 - (void)setDetailItem:(id)selectedItem {
     if (_selected != selectedItem) {
         _selected = selectedItem;
-        
-        // Update the view.
         [self loadUIViews];
     }
 }
@@ -53,11 +53,20 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(openActionSheet:)];
-        [self.view addSubview:self.scrollView];
+    [self.navigationController.navigationBar setTranslucent:NO];
+    [self.view addSubview:self.scrollView];
     [self loadUIViews];
-    [self setupConstraints];
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc]
+                                   initWithTitle:@" "
+                                   style:UIBarButtonItemStylePlain
+                                   target:nil
+                                   action:nil];
+    self.navigationItem.backBarButtonItem=backButton;
     
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -69,90 +78,84 @@
 
 - (void)loadUIViews {
     //Main View
-
+    self.title = self.selected.title;
+    self.navigationItem.backBarButtonItem.title = @" ";
+    
+    
     [_scrollView setBackgroundColor:[UIColor kabStaticColor]];
     
-    //Main title Image
-    _mainTitle = [[UIImageView alloc] initWithFrame:CGRectMake(0, 3, self.view.bounds.size.width, 182)];
+    _mainTitle = [[UIImageView alloc] init];
+    _mainTitle.translatesAutoresizingMaskIntoConstraints = NO;
     _mainTitle.contentMode = UIViewContentModeScaleAspectFill;
     [_mainTitle setImageWithURL:self.selected.backgroundURL placeholderImage:[UIImage imageNamed:@"bg_profile_empty"]];
-    [_scrollView addSubview:_mainTitle];
+    [self.scrollView addSubview:_mainTitle];
     
-    //detail text
-    _textBackground = [[UIImageView alloc] initWithFrame:CGRectMake(0.0, 195.0, self.view.bounds.size.width, 250.0f)];
-    [_textBackground setBackgroundColor:[UIColor kabStaticColor]];
-    [_scrollView addSubview:_textBackground];
-    
-    _detailText = [[UITextView alloc] initWithFrame:CGRectMake(0.0f, 198.0f, self.view.bounds.size.width, 241)];
+    _detailText = [[UITextView alloc] init];
+    _detailText.translatesAutoresizingMaskIntoConstraints = NO;
+    _detailText.backgroundColor = [UIColor clearColor];
     _detailText.textColor = [UIColor kabBlueColor];
-    _detailText.font = [UIFont kabInterfaceFontOfSize:UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 26.0 : 13.0];
+    _detailText.font = [UIFont kabInterfaceFontOfSize:UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 26.0 : 16.0];
     _detailText.textAlignment = NSTextAlignmentLeft;
     _detailText.autocapitalizationType = UITextAutocapitalizationTypeSentences;
     _detailText.autocorrectionType = UITextAutocorrectionTypeNo;
     _detailText.editable = NO;
     _detailText.scrollsToTop = YES;
-    _detailText.backgroundColor = [UIColor clearColor];
-    [_scrollView addSubview:_detailText];
+    [_detailText setScrollEnabled:NO];
+    [self.scrollView addSubview:_detailText];
+    
+    _viewButton = [[UIButton alloc] init];
+    _viewButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [_viewButton setTitle:@"View More" forState:UIControlStateNormal];
+    [_viewButton.titleLabel setFont:[UIFont boldKabInterfaceFontOfSize:20]];
+    [_viewButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_viewButton setTitleColor:[UIColor kabLightTextColor] forState:UIControlStateSelected];
+    [_viewButton setBackgroundColor:[UIColor kabBlueColor]];
+    [_viewButton addTarget:self action:@selector(pressedView:) forControlEvents:UIControlEventTouchUpInside];
+    [self.scrollView addSubview:_viewButton];
     
     [_detailText setText:self.selected.detailDescription];
-    self.title = self.selected.title;
+    CGRect rect = _detailText.frame;
+    rect.size.height = _detailText.contentSize.height;
+    self.detailTextHeightConstraint.constant = rect.size.height;
     
-    [self viewButton];
+    NSDictionary *views = NSDictionaryOfVariableBindings(_mainTitle, _scrollView, _detailText);
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_scrollView]|" options:kNilOptions metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_scrollView]|" options:kNilOptions metrics:nil views:views]];
+    [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:_mainTitle
+                                                                attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual
+                                                                   toItem:self.scrollView attribute:NSLayoutAttributeWidth
+                                                               multiplier:1.0 constant:0.0]];
+    [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:_mainTitle
+                                                                attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual
+                                                                   toItem:self.scrollView attribute:NSLayoutAttributeWidth
+                                                               multiplier:3.0/4.0 constant:0]];
+    [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:_detailText
+                                                                attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual
+                                                                   toItem:self.scrollView attribute:NSLayoutAttributeWidth
+                                                               multiplier:1.0 constant:0.0]];
+    [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:_detailText
+                                                                attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual
+                                                                   toItem:_mainTitle attribute:NSLayoutAttributeBottom
+                                                               multiplier:1.0 constant:0]];
     
-}
-
-- (UIButton *)viewButton {
-    if (!_viewButton) {
-        _viewButton = [UIButton viewButton];
-        _viewButton.translatesAutoresizingMaskIntoConstraints = NO;
-//        _viewButton.frame = CGRectMake(10.0f, 454.0f, 300.0f, 42.0f);
-        [_viewButton setTitle:@" VIEW" forState:UIControlStateNormal];
-        [_viewButton setImage:[UIImage imageNamed:@"icn_nav_bar_light_actions"] forState:UIControlStateNormal];
-        [_viewButton setImage:[UIImage imageNamed:@"icn_nav_bar_dark_actions"] forState:UIControlStateHighlighted];
-        [_viewButton addTarget:self action:@selector(pressedView:) forControlEvents:UIControlEventTouchUpInside];
-        [_scrollView addSubview:_viewButton];
-    }
-    return _viewButton;
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-//    _viewButton.alpha = 1.0f;
+    [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:_viewButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_detailText attribute:NSLayoutAttributeBottom multiplier:1.0 constant:10.0]];
+    [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:_viewButton attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0]];
+    [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:_viewButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0.0]];
+    [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:_viewButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeHeight multiplier:0.0 constant:44]];
+    
+    CGFloat height = CGRectGetHeight(self.view.bounds) + _viewButton.bounds.size.height + _detailTextHeightConstraint.constant + 350;
+    [_scrollView setContentSize:CGSizeMake(CGRectGetWidth(self.view.bounds), height)];
 }
 
 - (void)pressedView:(id)sender {
-    
+    KabbalahTVDetailViewController *detail = [[KabbalahTVDetailViewController alloc] init];
+    detail.detailSelected = self.selected;
+    [self.navigationController pushViewController:detail animated:YES];
+    self.navigationItem.backBarButtonItem.title = @" ";
 }
 
 - (void)openActionSheet:(id)sender {
     
 }
-
-#pragma mark - Configuration
-
-- (CGFloat)verticalSpacing {
-    return 16.0;
-}
-
-- (void)setupConstraints {
-    CGFloat verticalSpacing = self.verticalSpacing;
-    
-    NSDictionary *views = @{
-                            @"scrollView" : self.scrollView,
-                            @"button" : self.viewButton
-                            };
-    
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[scrollView]|" options:kNilOptions metrics:nil views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[scrollView]|" options:kNilOptions metrics:nil views:views]];
-    
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0.0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:200]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeHeight multiplier:0.0 constant:42]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:verticalSpacing]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.viewButton attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeRight multiplier:1.0 constant:verticalSpacing]];
-
-    
-}
-
 
 @end

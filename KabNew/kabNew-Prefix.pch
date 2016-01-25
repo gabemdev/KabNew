@@ -14,7 +14,6 @@
     #import "UIButton+kabiOSAdditions.h"
     #import "UIColor+kabIOSAdditions.h"
     #import "UIFont+kabiOSAdditions.h"
-    #import "GMD.h"
     #import "AFNetworking.h"
     #import "Reachability.h"
 
