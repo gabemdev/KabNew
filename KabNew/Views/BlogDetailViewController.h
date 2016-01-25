@@ -9,11 +9,12 @@
 #import <UIKit/UIKit.h>
 #import <MessageUI/MessageUI.h>
 #import "GMWebView.h"
+#import "Blog.h"
 
 @interface BlogDetailViewController : UIViewController <GMWebViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
 
 @property (nonatomic) GMWebView *webView;
-@property (nonatomic, retain) NSDictionary *item;
+@property (nonatomic) Blog *item;
 @property (nonatomic, assign) CGFloat lastContentOffset;
 
 - (void)loadURL:(NSURL *)url;
