@@ -7,7 +7,9 @@
 //
 
 #import "GMDWebViewController.h"
-
+#import <Social/Social.h>
+#import <Twitter/Twitter.h>
+#import <Accounts/Accounts.h>
 
 @interface GMDWebViewController ()
 - (void)_updateBrowserUI;
@@ -27,9 +29,23 @@
 
 #pragma mark - UIViewController
 
+- (instancetype)init {
+    if ((self = [super init])) {
+        self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    }
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc]
+                                   initWithTitle:@" "
+                                   style:UIBarButtonItemStylePlain
+                                   target:nil
+                                   action:nil];
+    self.navigationItem.backBarButtonItem=backButton;
     // Do any additional setup after loading the view.
     
     _indicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 22.0f, 22.0f)];
@@ -38,10 +54,18 @@
     
     _webView = [[GMWebView alloc] initWithFrame:self.view.bounds];
     _webView.backgroundColor = [UIColor kabStaticColor];
-    _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _webView.translatesAutoresizingMaskIntoConstraints = NO;
+    //    _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _webView.delegate = self;
     _webView.scalesPageToFit = YES;
-    [_webView loadURL:_url];
+    _webView.scrollView.showsHorizontalScrollIndicator = NO;
+    [_webView.scrollView setZoomScale:1.0 animated:YES];
+    if (self.bookSelected != nil) {
+        self.title = self.bookSelected.title;
+        [_webView loadURL:[NSURL URLWithString:self.bookSelected.pdfURL]];
+    } else {
+        [_webView loadURL:_url];
+    }
     [self.view addSubview:_webView];
     
     _backBarButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back-button"] landscapeImagePhone:[UIImage imageNamed:@"back-button-mini"] style:UIBarButtonItemStylePlain target:_webView action:@selector(goBack)];
@@ -77,6 +101,14 @@
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"close" style:UIBarButtonItemStylePlain target:self action:@selector(close:)];
     }
+    
+    NSDictionary *viewDict = @{@"webView": _webView};
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[webView]|"
+                                                                      options:kNilOptions metrics:nil
+                                                                        views:viewDict]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[webView]|"
+                                                                      options:kNilOptions metrics:nil
+                                                                        views:viewDict]];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -91,6 +123,11 @@
     [super viewWillDisappear:animated];
     
     [self.navigationController setToolbarHidden:YES animated:animated];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    self.bookSelected = nil;
 }
 
 #pragma mark - URL Loading
@@ -119,16 +156,79 @@
 }
 
 - (void)openActionSheet:(id)sender {
-    UIActionSheet *actionSheet = nil;
-    
-    if ([MFMailComposeViewController canSendMail] == NO) {
-        actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Copy URL", nil];
+    NSString *urlString = [NSString stringWithFormat:@"%@", _url];
+    if ([UIActivityViewController class] && [urlString containsString:@"pdf"]) {
+        NSString *url = urlString;
+        NSArray *items = @[self, [NSURL URLWithString:[NSString stringWithFormat:@"%@", url]]];
+        UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:items
+                                                                                             applicationActivities:nil];
+        
+        activityViewController.excludedActivityTypes = @[UIActivityTypeSaveToCameraRoll, UIActivityTypePostToVimeo, UIActivityTypeCopyToPasteboard];
+        [activityViewController.navigationItem.leftBarButtonItem setTintColor:[UIColor whiteColor]];
+        
+        UIActivityViewControllerCompletionWithItemsHandler completionBlock = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+            if (completed) {
+                [self alertWithTitle:@"Done" andMessage:nil];
+            }
+            if (activityError) {
+                [self alertWithTitle:@"Error!" andMessage:activityError.localizedDescription];
+            }
+        };
+        activityViewController.completionWithItemsHandler = completionBlock;
+        [self presentViewController:activityViewController animated:YES completion:^{
+            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+        }];
     } else {
-        actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Copy URL", @"Email URL", nil];
+        UIActionSheet *actionSheet = nil;
+        
+        if ([MFMailComposeViewController canSendMail] == NO) {
+            actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Copy URL", nil];
+        } else {
+            actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Copy URL", @"Email URL", nil];
+        }
+        
+        actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+        [actionSheet showInView:self.navigationController.view];
+    }
+}
+
+- (id) activityViewController:(UIActivityViewController *)activityViewController itemForActivityType:(NSString *)activityType {
+    NSString *string = [NSString stringWithFormat:@"Check out %@. Via %@", self.bookSelected.title, @"@KabbalahApp"];
+    
+    if ([activityType isEqualToString:UIActivityTypeMail]) {
+        NSMutableString *body = [NSMutableString string];
+        [body appendString:@"<html><body><h2>"];
+        [body appendString:self.bookSelected.title];
+        [body appendString:@"</h2><h3>"];
+        [body appendString:self.bookSelected.author];
+        [body appendString:@"</h3><p>"];
+        [body appendString:self.bookSelected.synopsis];
+        [body appendString:@"</p><a href=\""];
+        [body appendString:self.bookSelected.itunesURL];
+        [body appendString:@"\"> Link</a>\n<p>Follow us on <a href=\"http://www.twitter.com/KabbalahApp\">Twitter</a></br>"];
+        [body appendString:@"Like us on <a href=\"https://www.facebook.com/KabbalahApp\">Facebook</a></br></p></body></html>"];
+        return body;
+    } else if ([activityType isEqualToString:UIActivityTypePostToTwitter] || [activityType isEqualToString:UIActivityTypeMessage]) {
+        return string;
+    } else {
+        return nil;
     }
     
-    actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-    [actionSheet showInView:self.navigationController.view];
+}
+
+
+- (id) activityViewController:(UIActivityViewController *)activityViewController dataTypeIdentifierForActivityType:(NSString *)activityType {
+    NSURL *url = [NSURL URLWithString:self.bookSelected.itunesURL];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    
+    if ([activityType isEqualToString:UIActivityTypeMail]) {
+        return [NSData dataWithContentsOfURL:[NSURL URLWithString:self.bookSelected.pdfURL]];
+    }
+    else if ([activityType isEqualToString:UIActivityTypePostToTwitter]) {
+        return nil;
+    } else {
+        return data;
+    }
 }
 
 - (void)copyURL:(id)sender {
@@ -177,7 +277,7 @@
 
 - (void)webViewDidStartLoadingPage:(GMWebView *)aWebView {
     NSURL *url = _webView.lastRequest.mainDocumentURL;
-//    self.title = url.absoluteString;
+    //    self.title = url.absoluteString;
     [self _updateBrowserUI];
     
     [self.navigationController setToolbarHidden:[url isFileURL] animated:YES];
@@ -194,6 +294,12 @@
     [self _updateBrowserUI];
 }
 
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    
+    [webView.scrollView setContentSize: CGSizeMake(webView.frame.size.width + 25, webView.scrollView.contentSize.height)];
+    
+}
+
 #pragma mark - UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
@@ -204,14 +310,31 @@
     }
 }
 
+
 #pragma mark - MFMailComposeViewControllerDelegate
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
     [controller dismissViewControllerAnimated:YES completion:nil];
     
     if (result == MFMailComposeResultSent) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Sent" message:nil delegate:self cancelButtonTitle:@"Done" otherButtonTitles:nil, nil];
+        [self alertWithTitle:@"Sent" andMessage:nil];
+    }
+    else if (result == MFMailComposeResultCancelled) {
+        [self.navigationController setToolbarHidden:NO];
+    }
+}
+
+
+#pragma mark - Alert
+- (void)alertWithTitle:(NSString *)title andMessage:(NSString *)message {
+    if ([UIDevice currentDevice].systemVersion.floatValue < 8.) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [alert show];
+    } else {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancel =[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+        [alert addAction:cancel];
+        [self presentViewController:alert animated:YES completion:nil];
     }
 }
 
