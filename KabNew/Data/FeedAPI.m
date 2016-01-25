@@ -7,8 +7,21 @@
 //
 
 #import "FeedAPI.h"
+#import "FeedModel.h"
+#import "Archive.h"
+#import "Blog.h"
+#import "Book.h"
+#import <XMLDictionary/XMLDictionary.h>
+#import <AFNetworking/AFNetworking.h>
 
-@implementation FeedAPI
+@implementation FeedAPI {
+    AFHTTPRequestOperationManager *_rssOperationManager;
+    AFHTTPRequestOperationManager *_operationManager;
+}
+
++ (instancetype)api {
+    return [[self alloc] init];
+}
 
 + (FeedAPI *)sharedInstance {
     static dispatch_once_t once;
@@ -21,6 +34,75 @@
     return instance;
 }
 
+
+- (void)getFeedWithCompletion:(void (^)(NSArray<Archive *> *, NSError *))block {
+    [_rssOperationManager GET:@"https://feeds.feedburner.com/kabbalah-archive/ENG" parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        NSDictionary *dict = [NSDictionary dictionaryWithXMLParser:responseObject];
+        NSDictionary *channel = dict[@"channel"];
+        NSArray *items = channel[@"item"];
+        NSMutableArray *parsedFeed = [NSMutableArray array];
+        for (NSDictionary *item in items) {
+            [parsedFeed addObject:[Archive feedWithDictionary:item]];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            block([parsedFeed copy], nil);
+        });
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        block(nil, error);
+    }];
+}
+
+- (void)getBlogWithCompletion:(void (^)(NSArray<Blog *> *, NSError *))block {
+    [_rssOperationManager GET:@"http://laitman.com/feed" parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        NSDictionary *dict = [NSDictionary dictionaryWithXMLParser:responseObject];
+        NSDictionary *channel = dict[@"channel"];
+        NSArray *items = channel[@"item"];
+        NSMutableArray *parsedFeed = [NSMutableArray array];
+        for (NSDictionary *item in items) {
+            [parsedFeed addObject:[Blog feedWithDictionary:item]];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            block([parsedFeed copy], nil);
+        });
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        block(nil, error);
+    }];
+}
+
+- (void)getBooksWithCompletion:(void (^)(NSArray<Book*> *, NSError *error))block {
+    [_operationManager GET:[self encodedURLStringWithString:@"library.json"] parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        [self runBlockInParserQueue:^{
+            NSArray *response = (NSArray *)responseObject;
+            NSMutableArray *parsedFeed = [NSMutableArray array];
+            for (NSDictionary *dict in response) {
+                [parsedFeed addObject:[Book feedWithDictionary:dict]];
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                block([parsedFeed copy], nil);
+            });
+        }];
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        block(nil, error);
+    }];
+}
+
+- (void)getChannelWithCompletion:(void (^)(NSArray<FeedModel*> *, NSError *error))block {
+    [_operationManager GET:[self encodedURLStringWithString:@"bbtv/bb-static-new.json"] parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+        [self runBlockInParserQueue:^{
+            NSArray *response = (NSArray *)responseObject;
+            NSMutableArray *parsedFeed = [NSMutableArray array];
+            for (NSDictionary *dict  in response) {
+                [parsedFeed addObject:[FeedModel feedWithDictionary:dict]];
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                block([parsedFeed copy], nil);
+            });
+        }];
+    } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
+        block(nil, error);
+    }];
+}
+
 - (void)requestFeedWithUrl:(NSString *)url withCompletion:(CompletionBlock)comp {
     NSString *request = url;
     [self getRequest:request parameters:nil completion:^(BOOL success, NSData *response, NSError *error) {
@@ -28,6 +110,7 @@
     }];
     
 }
+
 
 - (void)getRequest:(NSString *)requestPath parameters:(NSDictionary *)parameters completion:(CompletionBlock)completion {
     NSURL *url = [NSURL URLWithString:requestPath];
@@ -46,6 +129,45 @@
     [op start];
 }
 
+
+- (instancetype)init {
+    if (self = [super init]) {
+        _rssOperationManager = [[AFHTTPRequestOperationManager alloc] initWithBaseURL:nil];
+        _rssOperationManager.responseSerializer = [AFXMLParserResponseSerializer serializer];
+        [_rssOperationManager.responseSerializer setAcceptableContentTypes:[NSSet setWithArray:@[@"application/rss+xml",@"text/xml",@"text/plain"]]];
+        
+        static NSString *const bbBaseURL = @"http://m.kab.tv/ios/";
+        _operationManager = [[AFHTTPRequestOperationManager alloc] initWithBaseURL:[NSURL URLWithString:bbBaseURL]];
+        _operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
+        
+        AFJSONResponseSerializer *responseSerializer = [AFJSONResponseSerializer serializer];
+        responseSerializer.removesKeysWithNullValues = YES;
+        _operationManager.responseSerializer = responseSerializer;
+        _operationManager.responseSerializer.acceptableContentTypes = [NSSet setWithArray:@[@"text/plain"]];
+    }
+    return self;
+}
+
+- (dispatch_queue_t)sharedParserQueue
+{
+    static dispatch_queue_t sharedQueue = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedQueue = dispatch_queue_create("BB-parser", NULL);
+    });
+    return sharedQueue;
+}
+
+- (void)runBlockInParserQueue:(void (^)())block
+{
+    dispatch_async([self sharedParserQueue], ^{
+        if (block != nil) {
+            block();
+        }
+    });
+}
+
+
 #pragma mark - Network
 - (void)handleError:(NSError *)error{
     // display user friendly error
@@ -63,5 +185,10 @@
     // send error to the server or use some bug tracking tool.
     NSLog(@"Error = %@",message);
     
+}
+
+- (NSString *)encodedURLStringWithString:(NSString *)urlString
+{
+    return [urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 }
 @end
