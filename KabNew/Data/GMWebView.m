@@ -98,7 +98,7 @@
     _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
     if (loadPreviousSettings) {
-        _webView.dataDetectorTypes = tempDataDetectorTypes;
+        //        _webView.dataDetectorTypes = tempDataDetectorTypes;
         _webView.scalesPageToFit = tempScalesPageToFit;
         _webView.allowsInlineMediaPlayback = tempAllowsInlineMediaPlayback;
         _webView.mediaPlaybackRequiresUserAction = tempMediaPlaybackRequiresUserAction;
