@@ -144,6 +144,7 @@
     [self.scrollView addConstraint:[NSLayoutConstraint constraintWithItem:_viewButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.scrollView attribute:NSLayoutAttributeHeight multiplier:0.0 constant:44]];
     
     CGFloat height = CGRectGetHeight(self.view.bounds) + _viewButton.bounds.size.height + _detailTextHeightConstraint.constant + 350;
+    NSLog(@"Height: %f", height);
     [_scrollView setContentSize:CGSizeMake(CGRectGetWidth(self.view.bounds), height)];
 }
 
